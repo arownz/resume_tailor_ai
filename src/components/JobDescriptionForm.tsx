@@ -47,7 +47,6 @@ export const JobDescriptionForm: React.FC<JobDescriptionFormProps> = ({
     return (
         <form onSubmit={handleSubmit} className="card space-y-6">
             <div className="flex items-center gap-3 mb-4">
-                <Briefcase className="w-6 h-6 text-primary-600" />
                 <h2 className="text-2xl font-bold text-gray-900">Job Description</h2>
             </div>
 
@@ -156,7 +155,7 @@ export const JobDescriptionForm: React.FC<JobDescriptionFormProps> = ({
                 disabled={disabled}
                 className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                {disabled ? 'Processing...' : 'Analyze Resume Match'}
+                {disabled ? 'Upload Your Resume' : 'Analyze Resume Match'}
             </button>
         </form>
     );

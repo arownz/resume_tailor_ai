@@ -4,28 +4,32 @@ import { FileText, Sparkles, TrendingUp, Zap, CheckCircle } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-blue-50">
+        <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-rose-100">
             {/* Hero Section */}
-            <div className="container mx-auto px-4 py-16">
-                <div className="text-center max-w-4xl mx-auto mb-16">
-                    <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-                        Tailor Your Resume Based on Job Description to
-                        <span className="text-primary-600"> Land Your Role</span>
+            <div className="container mx-auto px-4 py-24">
+                <div className="text-center max-w-4xl mx-auto mb-24">
+                    <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                        <span className="bg-gradient-to-r from-gray-900 via-rose-800 to-pink-800 bg-clip-text text-transparent">
+                            Tailor Your Resume
+                        </span>
+                        <br />
+                        <span className="text-primary-600">Land Your Role</span>
                     </h1>
-                    <p className="text-xl text-gray-600 mb-8">
-                        AI-powered resume analysis that matches your reference with job requirements.
-                        Get actionable insights and boost your chances of getting hired.
+                    <p className="text-xl md:text-2xl text-gray-700 mb-12 leading-relaxed">
+                        AI-powered resume analysis that reference your profile with job requirements.
+                        <br />
+                        Get actionable insights and boost your chances of getting hired!
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link
                             to="/dashboard"
-                            className="btn-primary text-lg px-8 py-4 inline-block"
+                            className="btn-primary btn-lg inline-block shadow-xl hover:shadow-2xl"
                         >
-                            Get Started Free
+                            Tailor Your Resume
                         </Link>
                         <Link
                             to="/pricing"
-                            className="btn-secondary text-lg px-8 py-4 inline-block"
+                            className="btn-secondary btn-lg inline-block shadow-lg hover:shadow-xl"
                         >
                             View Pricing
                         </Link>
@@ -33,10 +37,10 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 {/* Features Section */}
-                <div className="grid md:grid-cols-3 gap-8 mb-16">
+                <div className="grid md:grid-cols-3 gap-8 mb-20">
                     <FeatureCard
                         icon={<FileText className="w-12 h-12" />}
-                        title="Smart Resume Parsing"
+                        title="Resume Parsing"
                         description="Upload your resume in PDF, DOCX, or TXT format. Our AI extracts and analyzes all key information automatically."
                     />
                     <FeatureCard
@@ -52,10 +56,15 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 {/* How It Works */}
-                <div className="max-w-4xl mx-auto mb-16">
-                    <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-                        How It Works
+                <div className="max-w-4xl mx-auto mb-20">
+                    <h2 className="text-4xl font-bold text-center mb-4">
+                        <span className="bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
+                            How It Works?
+                        </span>
                     </h2>
+                    <p className="text-center text-gray-600 text-lg mb-16">
+                        Four simple steps to transform your resume
+                    </p>
                     <div className="space-y-8">
                         <StepCard
                             number={1}
@@ -80,33 +89,25 @@ export const HomePage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Benefits Section */}
-                <div className="card max-w-4xl mx-auto bg-gradient-to-r from-primary-600 to-blue-600 text-white">
-                    <h2 className="text-3xl font-bold text-center mb-8">
-                        Why Resumay Tailor Swift?
-                    </h2>
-                    <div className="grid md:grid-cols-2 gap-6">
-                        <BenefitItem text="Do it lazily but swiftly" />
-                        <BenefitItem text="Identify requirement before applying swiftly" />
-                        <BenefitItem text="Track what needed swiftly" />
-                        <BenefitItem text="AI-generated cover letter drafts swiftly" />
-                    </div>
-                </div>
-
                 {/* CTA Section */}
-                <div className="text-center mt-16">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                        Ready to Land Your Next Role?
+                <div className="text-center section-spacing bg-gradient-to-r from-rose-100 via-pink-100 to-rose-100 rounded-3xl p-16 border-2 border-rose-300 shadow-2xl">
+                    <div className="mb-6">
+                    </div>
+                    <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                        <span className="bg-gradient-to-r from-rose-700 to-pink-700 bg-clip-text text-transparent">
+                            Ready to Land Your Next Role?
+                        </span>
                     </h2>
-                    <p className="text-xl text-gray-600 mb-8">
-                        Join thousands of job seekers who improved their resumes with AI.
+                    <p className="text-xl text-gray-700 mb-12 max-w-2xl mx-auto leading-relaxed">
+                        <br />
+                        <span className="font-semibold text-rose-600">Join thousands of job seekers who improved their resumes with AI.</span>
                     </p>
                     <Link
                         to="/dashboard"
-                        className="btn-primary text-lg px-8 py-4 inline-flex items-center gap-2"
+                        className="btn-primary btn-lg inline-flex items-center gap-2 shadow-2xl text-xl"
                     >
-                        <Zap className="w-5 h-5" />
-                        Start Analyzing Now
+                        <Zap className="w-6 h-6" />
+                        Start Analyzing Now 🎉
                     </Link>
                 </div>
             </div>
@@ -116,13 +117,21 @@ export const HomePage: React.FC = () => {
 
 const FeatureCard: React.FC<{
     icon: React.ReactNode;
+    emoji?: string;
     title: string;
     description: string;
-}> = ({ icon, title, description }) => (
-    <div className="card text-center hover:shadow-lg transition-shadow">
-        <div className="text-primary-600 mb-4 flex justify-center">{icon}</div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-3">{title}</h3>
-        <p className="text-gray-600">{description}</p>
+}> = ({ icon, emoji, title, description }) => (
+    <div className="card text-center transition-all bg-gradient-to-br from-white to-rose-50 border-2 border-rose-100 hover:border-rose-300 hover:shadow-2xl">
+        <div className="relative mb-6">
+            <div className="text-primary-600 flex justify-center">{icon}</div>
+            {emoji && (
+                <div className="absolute -top-2 -right-2 text-4xl">
+                    {emoji}
+                </div>
+            )}
+        </div>
+        <h3 className="text-xl font-bold text-gray-900 mb-4">{title}</h3>
+        <p className="text-gray-700 leading-relaxed">{description}</p>
     </div>
 );
 
@@ -131,20 +140,20 @@ const StepCard: React.FC<{
     title: string;
     description: string;
 }> = ({ number, title, description }) => (
-    <div className="flex gap-4 items-start">
-        <div className="flex-shrink-0 w-12 h-12 bg-primary-600 text-white rounded-full flex items-center justify-center font-bold text-xl">
+    <div className="flex gap-6 items-start p-6 rounded-2xl bg-gradient-to-br from-white to-rose-50 border-2 border-rose-200 hover:border-rose-400 transition-all hover:shadow-xl">
+        <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-rose-500 to-pink-500 text-white rounded-2xl flex items-center justify-center font-bold text-2xl shadow-lg">
             {number}
         </div>
         <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
-            <p className="text-gray-600">{description}</p>
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">{title}</h3>
+            <p className="text-gray-700 text-lg leading-relaxed">{description}</p>
         </div>
     </div>
 );
 
-const BenefitItem: React.FC<{ text: string }> = ({ text }) => (
+const BenefitItem: React.FC<{ text: string; className?: string }> = ({ text, className }) => (
     <div className="flex items-center gap-3">
         <CheckCircle className="w-6 h-6 flex-shrink-0" />
-        <span className="text-lg">{text}</span>
+        <span className={`text-lg ${className || ''}`}>{text}</span>
     </div>
 );

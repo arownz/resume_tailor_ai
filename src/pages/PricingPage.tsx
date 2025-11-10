@@ -9,7 +9,7 @@ export const PricingPage: React.FC = () => {
                 {/* Header */}
                 <div className="text-center mb-16">
                     <h1 className="text-5xl font-bold text-gray-900 mb-4">
-                        Simple, Transparent Pricing
+                        Transparent Pricing
                     </h1>
                     <p className="text-xl text-gray-600">
                         Choose the plan that works best for your job search
@@ -43,15 +43,12 @@ export const PricingPage: React.FC = () => {
                             to="/dashboard"
                             className="btn-secondary w-full text-center block"
                         >
-                            Get Started
+                            Resume Tailor
                         </Link>
                     </div>
 
                     {/* Pro Plan */}
                     <div className="card border-2 border-primary-500 hover:border-primary-600 transition-all relative">
-                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                            Most Popular
-                        </div>
 
                         <div className="text-center mb-6">
                             <h3 className="text-2xl font-bold text-gray-900 mb-2">Pro</h3>
@@ -116,11 +113,11 @@ export const PricingPage: React.FC = () => {
                         />
                         <FAQItem
                             question="What payment methods do you accept?"
-                            answer="We accept all major credit cards (Visa, Mastercard, American Express) and PayPal."
+                            answer="We accept PayPal."
                         />
                         <FAQItem
                             question="Is my data secure?"
-                            answer="Absolutely. We use industry-standard encryption and never share your personal information or resumes with third parties."
+                            answer="Nah."
                         />
                         <FAQItem
                             question="Can I upgrade or downgrade my plan?"
@@ -134,7 +131,7 @@ export const PricingPage: React.FC = () => {
                 </div>
 
                 {/* CTA Section */}
-                <div className="card bg-gradient-to-r from-primary-600 to-blue-600 text-white text-center mt-16">
+                <div className="card bg-gradient-to-r from-primary-600 to-rose-600 text-white text-center mt-16">
                     <h2 className="text-3xl font-bold mb-4">
                         Ready to Boost Your Job Search?
                     </h2>

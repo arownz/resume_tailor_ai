@@ -4,17 +4,23 @@ export default {
   theme: {
     extend: {
       colors: {
+        // primary color palette adjusted to Tailor Swift rose accent
         primary: {
-          50: "#f0f9ff",
-          100: "#e0f2fe",
-          200: "#bae6fd",
-          300: "#7dd3fc",
-          400: "#38bdf8",
-          500: "#0ea5e9",
-          600: "#0284c7",
-          700: "#0369a1",
-          800: "#075985",
-          900: "#0c4a6e",
+          50: "#fff5f5",
+          100: "#fee2e2",
+          200: "#fecaca",
+          300: "#fda4a4",
+          400: "#fb7185",
+          500: "#F86A68",
+          600: "#ea5754",
+          700: "#c44340",
+          800: "#9e302e",
+          900: "#7a1f1d",
+        },
+        // Provide a compact brand token for components that want a single color
+        brand: {
+          DEFAULT: "#F86A68",
+          600: "#ea5754",
         },
       },
     },

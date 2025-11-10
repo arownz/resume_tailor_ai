@@ -1,21 +1,10 @@
-import { PDFParse } from "pdf-parse";
 import mammoth from "mammoth";
+import * as pdfjsLib from "pdfjs-dist";
 import type { Resume } from "../types/models";
-// Ensure pdf.js worker is configured for browser environments to avoid the
-// "No GlobalWorkerOptions.workerSrc specified" error.
-try {
-  // Attempt to set a CDN-hosted worker; this is a best-effort for dev and demo.
-  // In production you may want to host the worker locally or bundle it.
-  // Use unpkg to point to the installed pdfjs-dist package version if available.
-  if (typeof window !== "undefined") {
-    // prefer a reasonably recent pdf.js worker URL
-    // store on window as a typed string property to avoid any usage
-    (window as unknown as { pdfjsWorkerSrc?: string }).pdfjsWorkerSrc =
-      (window as unknown as { pdfjsWorkerSrc?: string }).pdfjsWorkerSrc ||
-      "https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js";
-  }
-} catch {
-  // ignore in non-browser environments
+
+// Configure pdf.js worker for browser environments
+if (typeof window !== "undefined") {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
 }
 
 export class ResumeParser {
@@ -25,10 +14,20 @@ export class ResumeParser {
   static async parsePDF(file: File): Promise<string> {
     try {
       const arrayBuffer = await file.arrayBuffer();
-      const buffer = new Uint8Array(arrayBuffer);
-      const pdfParser = new PDFParse(buffer);
-      const data = await pdfParser.getText();
-      return data.text;
+      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+      const pdf = await loadingTask.promise;
+
+      let fullText = "";
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .map((item) => ("str" in item ? item.str : ""))
+          .join(" ");
+        fullText += pageText + "\n";
+      }
+
+      return fullText;
     } catch (error) {
       console.error("Error parsing PDF:", error);
       throw new Error("Failed to parse PDF file");

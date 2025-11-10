@@ -97,7 +97,7 @@ export const DashboardPage: React.FC = () => {
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                        Resume Analysis Dashboard
+                        Resume Analysis
                     </h1>
                     <p className="text-gray-600">
                         Upload your resume and job description to get AI-powered insights
@@ -128,7 +128,7 @@ export const DashboardPage: React.FC = () => {
                                 onFileSelect={handleFileSelect}
                                 onCancel={handleCancel}
                                 disabled={isProcessing}
-                                label="Your Resume"
+                                label="Currently max 5 MB file."
                             />
 
                             {isProcessing && !analysisResults && (
@@ -141,7 +141,7 @@ export const DashboardPage: React.FC = () => {
                             {resume && !isProcessing && (
                                 <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
                                     <h3 className="font-semibold text-green-900 mb-2">
-                                        ✓ Resume Processed Successfully
+                                        Resume Processed Successfully
                                     </h3>
                                     <div className="text-sm text-green-700 space-y-1">
                                         <p>Name: {resume.name}</p>

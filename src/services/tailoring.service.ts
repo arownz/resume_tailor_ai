@@ -277,15 +277,15 @@ export class TailoringService {
 
     if (score >= 80) {
       recommendations.push(
-        "✅ Excellent match! Your resume aligns well with this position."
+        "Excellent match! Your resume aligns well with this position."
       );
     } else if (score >= 60) {
       recommendations.push(
-        "⚠️ Good match with room for improvement. Follow the suggestions below."
+        "Good match with room for improvement. Follow the suggestions below."
       );
     } else {
       recommendations.push(
-        "❌ Consider significant revisions to better match this position."
+        "Consider significant revisions to better match this position:"
       );
     }
 
@@ -309,17 +309,17 @@ export class TailoringService {
     // Experience recommendations
     if (resume.experience.length > 0) {
       recommendations.push(
-        "💼 Tailor your experience descriptions to match the job responsibilities"
+        "Tailor your experience descriptions to match the job responsibilities"
       );
     }
 
     // Format recommendations
     recommendations.push(
-      "📝 Use action verbs and quantify achievements in your bullet points"
+      "Use action verbs and quantify achievements in your bullet points"
     );
 
     recommendations.push(
-      "🎯 Customize your resume summary/objective to align with this specific role"
+      "Customize your resume summary/objective to align with this specific role"
     );
 
     return recommendations;
