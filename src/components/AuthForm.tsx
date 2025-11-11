@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { SupabaseService } from '../services/supabase.service';
 import { useNavigate } from 'react-router-dom';
-import { Github, Mail, Lock, Sparkles } from 'lucide-react';
+import { Github, Mail, Lock } from 'lucide-react';
 
 export const AuthForm: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -75,9 +75,6 @@ export const AuthForm: React.FC = () => {
     return (
         <div className="w-full max-w-md mx-auto p-8 bg-white rounded-2xl shadow-2xl border-2 border-primary-100">
             <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl mb-4 shadow-lg transform hover:scale-105 transition-transform">
-                    <Sparkles className="w-10 h-10 text-white" />
-                </div>
                 <h2 className="text-4xl font-bold text-gray-900 mb-3">Welcome</h2>
                 <p className="text-gray-600 text-lg">Sign in to tailor your resume with AI magic</p>
             </div>
@@ -100,9 +97,10 @@ export const AuthForm: React.FC = () => {
 
             <div className="mb-8">
                 <button
+
                     onClick={signInWithGitHub}
                     disabled={loading}
-                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gray-900 border-2 border-gray-900 rounded-xl font-bold text-white hover:bg-gray-800 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-gray-500 shadow-lg text-lg"
+                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gray-900 border-2 border-gray-900 rounded-xl font-bold text-white hover:bg-gray-800 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-gray-500 shadow-lg text-lg cursor-pointer"
                 >
                     <Github className="w-6 h-6" />
                     {loading ? 'Connecting...' : 'Continue with GitHub'}
@@ -154,7 +152,7 @@ export const AuthForm: React.FC = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="btn-primary w-full text-lg py-4 rounded-xl font-bold shadow-lg hover:scale-105 transition-all"
+                        className="btn-primary w-full text-lg py-4 rounded-xl font-bold shadow-lg hover:scale-105 transition-all cursor-pointer"
                     >
                         {loading ? 'Signing in...' : 'Sign in'}
                     </button>
@@ -162,7 +160,7 @@ export const AuthForm: React.FC = () => {
                         type="button"
                         onClick={signUpWithEmail}
                         disabled={loading}
-                        className="btn-secondary w-full text-lg py-4 rounded-xl font-bold shadow-lg hover:scale-105 transition-all"
+                        className="btn-secondary w-full text-lg py-4 rounded-xl font-bold shadow-lg hover:scale-105 transition-all cursor-pointer"
                     >
                         {loading ? 'Creating account...' : 'Sign up'}
                     </button>

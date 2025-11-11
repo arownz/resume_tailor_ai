@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
-import { Minimize2, Maximize2, X, Music } from 'lucide-react';
+import { Minimize2, X, Music } from 'lucide-react';
 
 export const MusicPlayer: React.FC<{ playlistId?: string }> = ({ playlistId = '4GtQVhGjAwcHFz82UKy3Ca' }) => {
     const embedUrl = `https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator&autoplay=1`;
     const [isMinimized, setIsMinimized] = useState(false);
     const [isHidden, setIsHidden] = useState(false);
-    const [size, setSize] = useState<'sm' | 'md' | 'lg'>('md');
+    const [size] = useState<'lg'>('lg');
     const sizeConfig = {
-        sm: { width: 'w-64', height: '60' },
-        md: { width: 'w-80', height: '80' },
-        lg: { width: 'w-96', height: '152' }
+        lg: { width: 'w-96', height: '155' }
     };
 
     if (isHidden) {
@@ -34,16 +32,6 @@ export const MusicPlayer: React.FC<{ playlistId?: string }> = ({ playlistId = '4
                         <span>Tailor Swift Player</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <button 
-                            onClick={() => { 
-                                const sizes: Array<'sm' | 'md' | 'lg'> = ['sm', 'md', 'lg'];
-                                setSize(sizes[(sizes.indexOf(size) + 1) % 3]);
-                            }} 
-                            className="p-1.5 hover:bg-white/20 rounded transition-colors"
-                            aria-label="Resize"
-                        >
-                            <Maximize2 className="w-4 h-4 text-white" />
-                        </button>
                         <button
                             onClick={() => setIsMinimized(!isMinimized)}
                             className="p-1.5 hover:bg-white/20 rounded transition-colors"
