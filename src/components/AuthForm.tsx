@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { SupabaseService } from '../services/supabase.service';
 import { useNavigate } from 'react-router-dom';
-import { Chrome, Github, Mail, Lock, Sparkles } from 'lucide-react';
+import { Github, Mail, Lock, Sparkles } from 'lucide-react';
 
 export const AuthForm: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -11,17 +11,17 @@ export const AuthForm: React.FC = () => {
     const [success, setSuccess] = useState<string | null>(null);
     const navigate = useNavigate();
 
-    const signInWithProvider = async (provider: 'google' | 'github') => {
+    const signInWithGitHub = async () => {
         setLoading(true);
         setError(null);
         setSuccess(null);
         try {
-            await SupabaseService.signInWithProvider(provider);
+            await SupabaseService.signInWithProvider('github');
             // Supabase will redirect to the callback URL configured in dashboard
-            setSuccess(`Redirecting to ${provider}...`);
+            setSuccess('Redirecting to GitHub...');
         } catch (err) {
             const message = err instanceof Error ? err.message : String(err);
-            setError(message || 'OAuth sign-in failed. Please check your Supabase OAuth configuration.');
+            setError(message || 'GitHub sign-in failed. Please check your configuration.');
         } finally {
             setLoading(false);
         }
@@ -53,34 +53,38 @@ export const AuthForm: React.FC = () => {
             setError('Please enter both email and password');
             return;
         }
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters');
+            return;
+        }
         setLoading(true);
         setError(null);
         setSuccess(null);
         try {
             await SupabaseService.signUp(email, password);
-            setSuccess('✨ Account created! Please check your email to verify.');
+            setSuccess('Account created! Redirecting to dashboard...');
+            setTimeout(() => navigate('/dashboard'), 1500);
         } catch (err) {
             const message = err instanceof Error ? err.message : String(err);
-            setError(message || 'Sign up failed');
+            setError(`${message || 'Sign up failed'}`);
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="max-w-lg mx-auto p-8 bg-white rounded-2xl shadow-xl border-2 border-primary-100">
-            <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full mb-4">
-                    <Sparkles className="w-8 h-8 text-white" />
+        <div className="w-full max-w-md mx-auto p-8 bg-white rounded-2xl shadow-2xl border-2 border-primary-100">
+            <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl mb-4 shadow-lg transform hover:scale-105 transition-transform">
+                    <Sparkles className="w-10 h-10 text-white" />
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-2"> Welcome</h2>
-                <p className="text-gray-600">Sign in to tailor your resume with AI magic</p>
+                <h2 className="text-4xl font-bold text-gray-900 mb-3">Welcome</h2>
+                <p className="text-gray-600 text-lg">Sign in to tailor your resume with AI magic</p>
             </div>
 
             {error && (
                 <div className="mb-4 p-4 bg-red-50 border-2 border-red-200 rounded-lg">
                     <p className="text-sm text-red-700 flex items-center gap-2">
-                        <span className="text-xl">⚠️</span>
                         {error}
                     </p>
                 </div>
@@ -89,48 +93,39 @@ export const AuthForm: React.FC = () => {
             {success && (
                 <div className="mb-4 p-4 bg-green-50 border-2 border-green-200 rounded-lg">
                     <p className="text-sm text-green-700 flex items-center gap-2">
-                        <span className="text-xl">✅</span>
                         {success}
                     </p>
                 </div>
             )}
 
-            <div className="space-y-3 mb-6">
+            <div className="mb-8">
                 <button
-                    onClick={() => signInWithProvider('google')}
+                    onClick={signInWithGitHub}
                     disabled={loading}
-                    className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white border-2 border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 hover:border-primary-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
+                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gray-900 border-2 border-gray-900 rounded-xl font-bold text-white hover:bg-gray-800 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-gray-500 shadow-lg text-lg"
                 >
-                    <Chrome className="w-5 h-5" />
-                    Continue with Google
-                </button>
-                <button
-                    onClick={() => signInWithProvider('github')}
-                    disabled={loading}
-                    className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-gray-900 border-2 border-gray-900 rounded-lg font-semibold text-white hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
-                >
-                    <Github className="w-5 h-5" />
-                    Continue with GitHub
+                    <Github className="w-6 h-6" />
+                    {loading ? 'Connecting...' : 'Continue with GitHub'}
                 </button>
             </div>
 
-            <div className="relative mb-6">
+            <div className="relative mb-8">
                 <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t-2 border-gray-200"></div>
                 </div>
-                <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-white text-gray-500 font-medium">Or use email</span>
+                <div className="relative flex justify-center text-base">
+                    <span className="px-6 bg-white text-gray-500 font-semibold">Or use email</span>
                 </div>
             </div>
 
-            <form onSubmit={signInWithEmail} className="space-y-4">
+            <form onSubmit={signInWithEmail} className="space-y-5">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <Mail className="w-4 h-4 inline mr-1" />
+                    <label className="block text-base font-semibold text-gray-700 mb-3">
+                        <Mail className="w-5 h-5 inline mr-2" />
                         Email
                     </label>
                     <input
-                        className="input-field"
+                        className="input-field text-lg"
                         type="email"
                         aria-label="Email"
                         placeholder="taylor@swift.com"
@@ -140,12 +135,12 @@ export const AuthForm: React.FC = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        <Lock className="w-4 h-4 inline mr-1" />
+                    <label className="block text-base font-semibold text-gray-700 mb-3">
+                        <Lock className="w-5 h-5 inline mr-2" />
                         Password
                     </label>
                     <input
-                        className="input-field"
+                        className="input-field text-lg"
                         aria-label="Password"
                         placeholder="••••••••"
                         type="password"
@@ -155,11 +150,11 @@ export const AuthForm: React.FC = () => {
                         minLength={6}
                     />
                 </div>
-                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <div className="flex flex-col gap-4 pt-3">
                     <button
                         type="submit"
                         disabled={loading}
-                        className="btn-primary flex-1 btn-lg"
+                        className="btn-primary w-full text-lg py-4 rounded-xl font-bold shadow-lg hover:scale-105 transition-all"
                     >
                         {loading ? 'Signing in...' : 'Sign in'}
                     </button>
@@ -167,16 +162,17 @@ export const AuthForm: React.FC = () => {
                         type="button"
                         onClick={signUpWithEmail}
                         disabled={loading}
-                        className="btn-secondary btn-lg"
+                        className="btn-secondary w-full text-lg py-4 rounded-xl font-bold shadow-lg hover:scale-105 transition-all"
                     >
-                        {loading ? 'Creating...' : 'Sign up'}
+                        {loading ? 'Creating account...' : 'Sign up'}
                     </button>
                 </div>
             </form>
 
-            <div className="mt-6 pt-6 border-t-2 border-gray-100 text-center">
-                <p className="text-sm text-gray-600">
-                    Your data is encrypted
+            <div className="mt-8 pt-6 border-t-2 border-gray-100 text-center">
+                <p className="text-base text-gray-600 flex items-center justify-center gap-2">
+                    <Lock className="w-5 h-5 text-primary-600" />
+                    Your data is encrypted and secure
                 </p>
             </div>
         </div>

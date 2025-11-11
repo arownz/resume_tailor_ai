@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import type { JobDescription } from '../types/models';
-import { Briefcase } from 'lucide-react';
 
 interface JobDescriptionFormProps {
     onSubmit: (jobDescription: JobDescription) => void;

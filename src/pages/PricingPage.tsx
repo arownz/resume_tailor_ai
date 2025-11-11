@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 
 export const PricingPage: React.FC = () => {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-blue-50 py-16">
-            <div className="container mx-auto px-4 max-w-6xl">
+        <div className="min-h-screen w-full py-16">
+            <div className="w-full px-6 lg:px-12 xl:px-20">
                 {/* Header */}
                 <div className="text-center mb-16">
                     <h1 className="text-5xl font-bold text-gray-900 mb-4">
@@ -117,7 +117,7 @@ export const PricingPage: React.FC = () => {
                         />
                         <FAQItem
                             question="Is my data secure?"
-                            answer="Nah."
+                            answer="Nah, this still in beta."
                         />
                         <FAQItem
                             question="Can I upgrade or downgrade my plan?"

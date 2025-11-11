@@ -7,12 +7,33 @@
   --rose-50: #fff1f2;
   --rose-100: #ffe4e6;
 }
+html {
+  width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
 body {
   background: linear-gradient(135deg, #fff1f2 0%, #fce7f3 50%, #fff1f2 100%);
   color: #111827;
   font-size: 16px;
-    line-height: 1.6;
-    min-height: 100vh;
+  line-height: 1.6;
+  margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+  
+  /* Ensure full-width layouts */
+  #root {
+    width: 100%;
+  min-height: 100vh;
+  display: flex;
+    flex-direction: column;
 }
 
 /* Typography scale */
@@ -32,7 +53,7 @@ h6 {
   background: linear-gradient(135deg, var(--brand) 0%, #fb7185 100%);
   color: white;
   font-weight: 700;
-    padding: 0.625rem 1.25rem;
+  padding: 0.625rem 1.25rem;
     border-radius: 0.75rem;
     transition: all 0.2s ease;
     border: 2px solid transparent;
@@ -57,7 +78,7 @@ h6 {
 
 .btn-primary:hover {
   background: linear-gradient(135deg, var(--brand-600) 0%, #f43f5e 100%);
-    transform: translateY(-2px) scale(1.02);
+  transform: translateY(-2px) scale(1.02);
     box-shadow: 0 8px 24px rgba(248, 106, 104, 0.35);
   }
   
@@ -68,17 +89,17 @@ h6 {
 
 .btn-secondary {
   background-color: #f3f4f6;
-    color: #111827;
+  color: #111827;
   font-weight: 600;
   padding: 0.625rem 1.25rem;
   border-radius: 0.5rem;
   transition: all 0.15s ease;
-    border: 2px solid transparent;
+  border: 2px solid transparent;
 }
 
 .btn-secondary:hover {
   background-color: #e5e7eb;
-    transform: translateY(-1px);
+  transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
   
@@ -90,7 +111,7 @@ h6 {
 .card {
   background-color: white;
   border-radius: 0.75rem;
-    box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.15);
     padding: 2rem;
     transition: box-shadow 0.2s ease;
   }
@@ -102,7 +123,7 @@ h6 {
 .input-field {
   width: 100%;
   padding: 0.625rem 1rem;
-    border: 2px solid #e5e7eb;
+  border: 2px solid #e5e7eb;
   border-radius: 0.5rem;
   outline: none;
   transition: all 0.15s;
@@ -111,7 +132,7 @@ h6 {
 
 .input-field:focus {
   box-shadow: 0 0 0 4px rgba(248, 106, 104, 0.12);
-    border-color: var(--brand);
+  border-color: var(--brand);
   }
   
   .input-field:focus-visible {
@@ -133,21 +154,51 @@ h6 {
   
   /* Utility classes for spacing consistency */
   .section-spacing {
-    padding: 4rem 0;
+  padding: 4rem 1rem;
   }
   
+  @media (min-width: 768px) {
+    .section-spacing {
+      padding: 4rem 2rem;
+    }
+  }
+.container-spacing {
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
   .container-spacing {
     padding: 0 1.5rem;
   }
-  
-  /* Improved button sizes for different contexts */
-  .btn-lg {
-    padding: 0.875rem 1.75rem;
-    font-size: 1.125rem;
-  }
-  
-  .btn-sm {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
 }
 
+@media (min-width: 1024px) {
+  .container-spacing {
+    padding: 0 2rem;
+  }
+}
+/* Improved button sizes for different contexts */
+.btn-lg {
+  padding: 0.875rem 1.75rem;
+  font-size: 1.125rem;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+/* Responsive text utilities */
+@media (max-width: 640px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+        h3 {
+          font-size: 1.25rem;
+        }
+        }

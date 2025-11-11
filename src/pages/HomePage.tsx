@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FileText, Sparkles, TrendingUp, Zap, CheckCircle } from 'lucide-react';
+import { DollarSign, FileText, Sparkles, TrendingUp } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-rose-100">
+        <div className="min-h-screen w-full">
             {/* Hero Section */}
-            <div className="container mx-auto px-4 py-24">
-                <div className="text-center max-w-4xl mx-auto mb-24">
+            <div className="w-full px-6 lg:px-12 xl:px-20 py-24">
+                <div className="text-center mb-24">
                     <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
                         <span className="bg-gradient-to-r from-gray-900 via-rose-800 to-pink-800 bg-clip-text text-transparent">
                             Tailor Your Resume
@@ -23,21 +23,24 @@ export const HomePage: React.FC = () => {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link
                             to="/dashboard"
-                            className="btn-primary btn-lg inline-block shadow-xl hover:shadow-2xl"
+                            className="btn-primary btn-lg inline-flex items-center gap-2 shadow-xl hover:shadow-2xl"
+
                         >
+                            <Sparkles className="w-4 h-4" />
                             Tailor Your Resume
                         </Link>
                         <Link
                             to="/pricing"
-                            className="btn-secondary btn-lg inline-block shadow-lg hover:shadow-xl"
+                            className="btn-secondary btn-lg inline-flex items-center gap-2 shadow-lg hover:shadow-2xl"
                         >
+                            <DollarSign className="w-5 h-5" />
                             View Pricing
                         </Link>
                     </div>
                 </div>
 
                 {/* Features Section */}
-                <div className="grid md:grid-cols-3 gap-8 mb-20">
+                <div className="grid md:grid-cols-3 gap-8 mb-20 px-4">
                     <FeatureCard
                         icon={<FileText className="w-12 h-12" />}
                         title="Resume Parsing"
@@ -56,7 +59,7 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 {/* How It Works */}
-                <div className="max-w-4xl mx-auto mb-20">
+                <div className="mb-20 px-4">
                     <h2 className="text-4xl font-bold text-center mb-4">
                         <span className="bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
                             How It Works?
@@ -90,7 +93,7 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 {/* CTA Section */}
-                <div className="text-center section-spacing bg-gradient-to-r from-rose-100 via-pink-100 to-rose-100 rounded-3xl p-16 border-2 border-rose-300 shadow-2xl">
+                <div className="text-center section-spacing bg-gradient-to-r from-rose-100 via-pink-100 to-rose-100 rounded-3xl p-16 border-2 border-rose-300 shadow-2xl mx-4">
                     <div className="mb-6">
                     </div>
                     <h2 className="text-4xl md:text-5xl font-bold mb-6">
@@ -106,8 +109,7 @@ export const HomePage: React.FC = () => {
                         to="/dashboard"
                         className="btn-primary btn-lg inline-flex items-center gap-2 shadow-2xl text-xl"
                     >
-                        <Zap className="w-6 h-6" />
-                        Start Analyzing Now 🎉
+                        <Sparkles className="w-4 h-4" />Start Analyzing Now
                     </Link>
                 </div>
             </div>
@@ -148,12 +150,5 @@ const StepCard: React.FC<{
             <h3 className="text-2xl font-bold text-gray-900 mb-3">{title}</h3>
             <p className="text-gray-700 text-lg leading-relaxed">{description}</p>
         </div>
-    </div>
-);
-
-const BenefitItem: React.FC<{ text: string; className?: string }> = ({ text, className }) => (
-    <div className="flex items-center gap-3">
-        <CheckCircle className="w-6 h-6 flex-shrink-0" />
-        <span className={`text-lg ${className || ''}`}>{text}</span>
     </div>
 );
