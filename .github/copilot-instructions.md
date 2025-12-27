@@ -2,45 +2,71 @@
 
 ## Project Overview
 
-Resume Tailor AI is a React + TypeScript + Vite SaaS that analyzes resumes against job descriptions using Hugging Face ML models. It provides job seekers with match scores, skill gap analysis, and actionable recommendations to optimize their applications.
+Resume Tailor AI is a React + TypeScript + Vite SaaS that **automatically modifies resumes** based on job descriptions using AI. It accepts a resume file and job description, then outputs a **modified PDF/DOCX file** with tailored content that users can download and further edit.
 
-**Tech Stack**: React 19, TypeScript, Vite, TailwindCSS, Hugging Face Inference API, Supabase (optional), React Router v6
+**Tech Stack**: React 19, TypeScript, Vite, TailwindCSS 4, Hugging Face Inference API, Supabase (auth/storage), React Router v7, shadcn/ui (to be added)
 
 ## Architecture & Data Flow
 
 ### Three-Layer Architecture
 
 1. **Services Layer** (`src/services/`): Business logic and external API integration
+   - `huggingface.service.ts`: ML model inference (NER, classification, text generation)
+   - `tailoring.service.ts`: Core resume modification logic with AI-powered rewriting
+   - `supabase.service.ts`: User authentication and analysis history
+   - `pdf.service.ts`: **[TO ADD]** PDF generation and editing (jsPDF or pdf-lib)
 
-   - `huggingface.service.ts`: ML model inference (NER, classification, similarity)
-   - `tailoring.service.ts`: Core resume analysis logic with weighted scoring algorithm
-   - `supabase.service.ts`: Optional auth and data persistence
 2. **Utils Layer** (`src/utils/`): Pure functions for data transformation
+   - `resumeParser.ts`: Extracts structured data from PDF/DOCX/TXT
+   - `resumeGenerator.ts`: **[TO ADD]** Generates modified resume files
 
-   - `resumeParser.ts`: Extracts structured data from PDF/DOCX/TXT using regex patterns
 3. **Components/Pages Layer** (`src/components/`, `src/pages/`): React UI
-
-   - `DashboardPage.tsx`: Main analysis workflow orchestration
+   - `DashboardPage.tsx`: Main resume modification workflow
+   - `AuthForm.tsx`: Login/signup with GitHub OAuth + email/password
    - Smart components handle state, dumb components handle presentation
 
-### Key Data Flow Pattern
+### Critical Data Flow Pattern
 
 ```
-File Upload → resumeParser → Resume object → TailoringService.analyzeResume() → TailoredOutput → UI Display
+1. User uploads resume → resumeParser extracts structure
+2. User provides job description → stores as JobDescription object
+3. AI analyzes and modifies resume → TailoringService.modifyResume()
+4. Generate new PDF/DOCX → resumeGenerator creates downloadable file
+5. User downloads modified resume OR edits in browser before download
 ```
 
-The analysis pipeline is **asynchronous** and involves multiple API calls. Always handle loading states and errors gracefully.
+**Key Change from Original Design**: System now **generates modified files**, not just analysis reports.
 
 ## Critical Developer Knowledge
+
+### Authentication Flow (IMPORTANT)
+
+**Current Issue**: Users remain in "guest mode" after signing in - auth state not managed globally.
+
+**Fix Required**:
+1. Create `AuthContext` to manage auth state across app
+2. Update `Navigation.tsx` to show user info when logged in
+3. Add protected routes for `/dashboard` and `/profile`
+4. Store auth state in React Context + localStorage for persistence
+
+**Code Pattern**:
+```tsx
+// src/contexts/AuthContext.tsx (TO CREATE)
+export const AuthContext = createContext<AuthContextType | null>(null);
+export const useAuth = () => useContext(AuthContext);
+
+// In App.tsx: Wrap with <AuthProvider>
+// In Navigation.tsx: const { user, loading } = useAuth();
+```
 
 ### Environment Variables (Required)
 
 All environment variables **must** be prefixed with `VITE_` to be accessible in client-side code:
 
 ```env
-VITE_HUGGINGFACE_API_KEY=hf_xxxxx  # Required for AI features
-VITE_SUPABASE_URL=https://...       # Optional - for auth/storage
-VITE_SUPABASE_ANON_KEY=eyJ...       # Optional - for auth/storage
+VITE_HUGGINGFACE_API_KEY=hf_xxxxx  # Required for AI text generation
+VITE_SUPABASE_URL=https://jsqhgbxkcopylwhcaudk.supabase.co  # Required
+VITE_SUPABASE_ANON_KEY=eyJ...       # Required for auth
 ```
 
 Access via: `import.meta.env.VITE_HUGGINGFACE_API_KEY`
@@ -74,15 +100,63 @@ Current models optimized for **free tier** (1,000 requests/month):
 
 To upgrade: Replace model names in `huggingface.service.ts`. Larger models (e.g., `bart-large`) require paid tier.
 
-### Supabase Integration (Optional)
+### PDF Generation (CRITICAL - TO IMPLEMENT)
 
-Supabase is **NOT required** for core functionality. The app works as a client-only tool. Enable Supabase for:
+**Current Gap**: System only shows analysis text, doesn't generate modified resume files.
 
-- User authentication (via `@supabase/supabase-js`)
-- Analysis history storage
-- Subscription management
+**Required Libraries** (choose one):
+1. **jsPDF** (recommended) - Simple, client-side PDF generation
+2. **pdf-lib** - More powerful, can modify existing PDFs
 
-Database schema: `profiles` and `analyses` tables with Row Level Security enabled. See `SUPABASE_SETUP.md` for SQL.
+**Installation**:
+```bash
+npm install jspdf
+# OR
+npm install pdf-lib
+```
+
+**Implementation Pattern**:
+```tsx
+// src/services/pdf.service.ts
+export class PDFService {
+  static async generateModifiedResume(
+    originalResume: Resume,
+    modifications: TailoredOutput
+  ): Promise<Blob> {
+    // 1. Apply AI suggestions to resume structure
+    // 2. Generate PDF with modified content
+    // 3. Return Blob for download
+  }
+}
+```
+
+### shadcn/ui Integration (TO ADD)
+
+**Why**: Better UI components with accessibility built-in.
+
+**Setup Steps**:
+```bash
+npx shadcn@latest init
+npx shadcn@latest add button card dialog dropdown-menu
+```
+
+**Usage Pattern**:
+```tsx
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+```
+
+Replace custom `.btn-primary` classes with shadcn Button components.
+
+### Supabase Integration (REQUIRED for Auth)
+
+Supabase handles:
+- User authentication (GitHub OAuth + email/password)
+- Profile storage (`profiles` table with 2 users currently)
+- Analysis history (`analyses` table)
+- RLS policies for data security
+
+Database schema: `profiles` and `analyses` tables with Row Level Security enabled. See `SUPABASE_STATUS_REPORT.md` for current state.
 
 ## Development Workflows
 
@@ -265,6 +339,129 @@ This project uses **MCP servers** for enhanced AI agent capabilities. The follow
 ### ✅ **Active & Required MCPs**
 
 #### 1. **Hugging Face MCP** (`evalstate/hf-mcp-server`)
+
+- **Purpose**: AI model inference for resume analysis
+- **Configuration**: HTTP server at `https://huggingface.co/mcp`
+- **Features Used**:
+  - Model search and discovery
+  - Dataset access
+  - Paper search for ML research
+  - Documentation lookup
+- **Critical for**: Core resume tailoring functionality
+- **API Key**: Authenticated as user `arownz`
+
+#### 2. **Supabase MCP** (`@supabase/mcp-server-supabase`)
+
+- **Purpose**: Database operations, authentication, security
+- **Configuration**:
+  ```bash
+  Project: jsqhgbxkcopylwhcaudk
+  Access Token: sbp_1a51341f21cdfc08aa15bd4ccff1f0e8fb5c2b8d
+  ```
+- **Features Used**:
+  - Execute SQL queries
+  - Apply database migrations
+  - Manage RLS policies
+  - Check security advisors
+  - List tables, functions, triggers
+- **Critical for**: User authentication, analysis storage, profile management
+
+#### 3. **Upstash Context7** (`upstash/context7`)
+
+- **Purpose**: Real-time library documentation and API references
+- **Configuration**: HTTP server with API key `ctx7sk-d355...`
+- **Features Used**:
+  - Resolve library IDs for documentation
+  - Fetch up-to-date docs for React, TypeScript, Vite, etc.
+  - Context-aware code examples
+- **Useful for**: Developer assistance during coding
+
+#### 4. **GitHub MCP** (`github/github-mcp-server`)
+
+- **Purpose**: Repository management and operations
+- **Configuration**: HTTP server via GitHub Copilot API
+- **Features Used**:
+  - Repo metadata access
+  - Issue/PR management
+  - Code search
+- **Useful for**: Repository-level operations
+
+### ⚠️ **Optional MCPs (Enabled but Not Critical)**
+
+- **Sentry MCP**: Error tracking (configure if production monitoring needed)
+- **Figma MCP**: Design tool integration (not needed for this project)
+- **Chrome DevTools MCP**: Browser debugging (not needed for this project)
+- **MarkItDown MCP**: Document conversion (redundant - we use pdf-parse directly)
+
+### 🆕 **Recommended MCPs to Add**
+
+Consider adding these MCPs for future features:
+
+#### **Stripe MCP** (for subscription payments)
+
+```json
+"stripe": {
+  "type": "http",
+  "url": "https://mcp.stripe.com",
+  "headers": {
+    "Authorization": "Bearer YOUR_STRIPE_API_KEY"
+  }
+}
+```
+
+**Why**: Your `PricingPage` has subscription tiers. Stripe MCP would enable:
+
+- Payment processing
+- Subscription management
+- Webhook handling
+- Invoice generation
+
+#### **Vercel MCP** (for deployment automation)
+
+```json
+"vercel": {
+  "type": "stdio",
+  "command": "npx",
+  "args": ["-y", "@vercel/mcp-server"]
+}
+```
+
+**Why**: Simplifies deployment workflows:
+
+- Environment variable management
+- Deployment previews
+- Domain configuration
+- Analytics access
+
+### 🔧 **MCP Usage in Development**
+
+When working with AI agents (like GitHub Copilot):
+
+1. **For Hugging Face API issues**: Agent can query model documentation, search datasets, or troubleshoot inference errors
+2. **For Supabase database**: Agent can inspect schema, create migrations, optimize RLS policies, or debug auth issues
+3. **For library questions**: Agent can fetch latest documentation via Context7 instead of relying on potentially outdated training data
+
+### 🔐 **MCP Security Notes**
+
+- **API Keys**: All MCP credentials stored in `mcp.json` (gitignored)
+- **Supabase Access Token**: Read-write access via `sbp_*` token (NOT service_role key)
+- **Hugging Face**: Authenticated as user `arownz` with read-only access to public models
+- **GitHub**: Uses Copilot API (scoped to your GitHub account)
+
+### 📚 **MCP Documentation**
+
+- **Official MCP Spec**: https://modelcontextprotocol.io/
+- **Hugging Face MCP**: https://huggingface.co/docs/hub/mcp
+- **Supabase MCP**: https://github.com/supabase/mcp-server-supabase
+- **Context7 MCP**: https://context7.com/docs
+
+## Model Context Protocol (MCP) Integration
+
+This project uses **MCP servers** for enhanced AI agent capabilities. The following MCPs are configured in `mcp.json`:
+
+### ✅ **Active & Required MCPs**
+
+#### 1. **Hugging Face MCP** (`evalstate/hf-mcp-server`)
 - **Purpose**: AI model inference for resume analysis
 - **Configuration**: HTTP server at `https://huggingface.co/mcp`
 - **Features Used**:
@@ -277,7 +474,7 @@ This project uses **MCP servers** for enhanced AI agent capabilities. The follow
 
 #### 2. **Supabase MCP** (`@supabase/mcp-server-supabase`)
 - **Purpose**: Database operations, authentication, security
-- **Configuration**: 
+- **Configuration**:
   ```bash
   Project: jsqhgbxkcopylwhcaudk
   Access Token: sbp_1a51341f21cdfc08aa15bd4ccff1f0e8fb5c2b8d

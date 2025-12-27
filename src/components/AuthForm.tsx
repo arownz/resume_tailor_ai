@@ -1,29 +1,30 @@
 import React, { useState } from 'react';
-import { SupabaseService } from '../services/supabase.service';
+import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Github, Mail, Lock } from 'lucide-react';
 
 export const AuthForm: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [localLoading, setLocalLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const navigate = useNavigate();
+    const { signIn, signUp, signInWithGitHub } = useAuth();
 
-    const signInWithGitHub = async () => {
-        setLoading(true);
+    const handleGitHubSignIn = async () => {
+        setLocalLoading(true);
         setError(null);
         setSuccess(null);
         try {
-            await SupabaseService.signInWithProvider('github');
+            await signInWithGitHub();
             // Supabase will redirect to the callback URL configured in dashboard
             setSuccess('Redirecting to GitHub...');
         } catch (err) {
             const message = err instanceof Error ? err.message : String(err);
             setError(message || 'GitHub sign-in failed. Please check your configuration.');
         } finally {
-            setLoading(false);
+            setLocalLoading(false);
         }
     };
 
@@ -33,18 +34,18 @@ export const AuthForm: React.FC = () => {
             setError('Please enter both email and password');
             return;
         }
-        setLoading(true);
+        setLocalLoading(true);
         setError(null);
         setSuccess(null);
         try {
-            await SupabaseService.signIn(email, password);
+            await signIn(email, password);
             setSuccess('Welcome back! Redirecting...');
             setTimeout(() => navigate('/dashboard'), 1500);
         } catch (err) {
             const message = err instanceof Error ? err.message : String(err);
             setError(message || 'Sign in failed');
         } finally {
-            setLoading(false);
+            setLocalLoading(false);
         }
     };
 
@@ -57,18 +58,18 @@ export const AuthForm: React.FC = () => {
             setError('Password must be at least 6 characters');
             return;
         }
-        setLoading(true);
+        setLocalLoading(true);
         setError(null);
         setSuccess(null);
         try {
-            await SupabaseService.signUp(email, password);
+            await signUp(email, password);
             setSuccess('Account created! Redirecting to dashboard...');
             setTimeout(() => navigate('/dashboard'), 1500);
         } catch (err) {
             const message = err instanceof Error ? err.message : String(err);
             setError(`${message || 'Sign up failed'}`);
         } finally {
-            setLoading(false);
+            setLocalLoading(false);
         }
     };
 
@@ -98,12 +99,12 @@ export const AuthForm: React.FC = () => {
             <div className="mb-8">
                 <button
 
-                    onClick={signInWithGitHub}
-                    disabled={loading}
-                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gray-900 border-2 border-gray-900 rounded-xl font-bold text-white hover:bg-gray-800 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-gray-500 shadow-lg text-lg cursor-pointer"
+                    onClick={handleGitHubSignIn}
+                    disabled={localLoading}
+                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gray-900 border-2 border-gray-900 rounded-xl font-bold text-white hover:bg-gray-800 hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed not-odd:focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-gray-500 shadow-lg text-lg cursor-pointer"
                 >
                     <Github className="w-6 h-6" />
-                    {loading ? 'Connecting...' : 'Continue with GitHub'}
+                    {localLoading ? 'Connecting...' : 'Continue with GitHub'}
                 </button>
             </div>
 
@@ -151,18 +152,18 @@ export const AuthForm: React.FC = () => {
                 <div className="flex flex-col gap-4 pt-3">
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={localLoading}
                         className="btn-primary w-full text-lg py-4 rounded-xl font-bold shadow-lg hover:scale-105 transition-all cursor-pointer"
                     >
-                        {loading ? 'Signing in...' : 'Sign in'}
+                        {localLoading ? 'Signing in...' : 'Sign in'}
                     </button>
                     <button
                         type="button"
                         onClick={signUpWithEmail}
-                        disabled={loading}
+                        disabled={localLoading}
                         className="btn-secondary w-full text-lg py-4 rounded-xl font-bold shadow-lg hover:scale-105 transition-all cursor-pointer"
                     >
-                        {loading ? 'Creating account...' : 'Sign up'}
+                        {localLoading ? 'Creating account...' : 'Sign up'}
                     </button>
                 </div>
             </form>

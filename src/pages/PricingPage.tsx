@@ -69,7 +69,7 @@ export const PricingPage: React.FC = () => {
                             <Feature included text="Email support" />
                         </ul>
 
-                        <button className="btn-primary w-full">
+                        <button className="btn-primary w-full cursor-pointer">
                             Upgrade to Pro
                         </button>
                     </div>
@@ -95,7 +95,7 @@ export const PricingPage: React.FC = () => {
                             <Feature included text="Priority support & consultation" />
                         </ul>
 
-                        <button className="btn-primary w-full">
+                        <button className="btn-primary w-full cursor-pointer">
                             Upgrade to Premium
                         </button>
                     </div>
@@ -131,7 +131,7 @@ export const PricingPage: React.FC = () => {
                 </div>
 
                 {/* CTA Section */}
-                <div className="card bg-gradient-to-r from-primary-600 to-rose-600 text-white text-center mt-16">
+                <div className="card bg-linear-to-r from-primary-600 to-rose-600 text-white text-center mt-16">
                     <h2 className="text-3xl font-bold mb-4">
                         Ready to Boost Your Job Search?
                     </h2>

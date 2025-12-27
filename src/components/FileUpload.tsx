@@ -12,7 +12,7 @@ interface FileUploadProps {
 export const FileUpload: React.FC<FileUploadProps> = ({
     onFileSelect,
     onCancel,
-    accept = '.pdf,.docx,.txt',
+    accept = '.pdf,.docx, .txt',
     label = 'Upload Resume',
     disabled = false,
 }) => {

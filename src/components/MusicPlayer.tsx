@@ -14,7 +14,7 @@ export const MusicPlayer: React.FC<{ playlistId?: string }> = ({ playlistId = '4
         return (
             <button
                 onClick={() => setIsHidden(false)}
-                className="fixed right-4 bottom-4 z-50 bg-gradient-to-r from-rose-500 to-pink-500 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform"
+                className="fixed right-4 bottom-4 z-50 bg-linear-to-r from-rose-500 to-pink-500 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform"
                 aria-label="Show music player"
             >
                 <Music className="w-6 h-6" />
@@ -24,9 +24,9 @@ export const MusicPlayer: React.FC<{ playlistId?: string }> = ({ playlistId = '4
 
     return (
         <div className={`fixed right-4 bottom-4 z-50 ${sizeConfig[size].width} transition-all duration-300`}>
-            <div className="bg-gradient-to-br from-rose-50 via-pink-50 to-rose-100 rounded-xl shadow-2xl border-2 border-rose-300 overflow-hidden">
+            <div className="bg-linear-to-br from-rose-50 via-pink-50 to-rose-100 rounded-xl shadow-2xl border-2 border-rose-300 overflow-hidden">
                 {/* Header */}
-                <div className="bg-gradient-to-r from-rose-500 to-pink-500 p-3 flex items-center justify-between">
+                <div className="bg-linear-to-r from-rose-500 to-pink-500 p-3 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-white font-bold text-sm">
                         <Music className="w-4 h-4" />
                         <span>Tailor Swift Player</span>
@@ -51,7 +51,7 @@ export const MusicPlayer: React.FC<{ playlistId?: string }> = ({ playlistId = '4
 
                 {/* Spotify Embed */}
                 {!isMinimized && (
-                    <div className="p-3 bg-gradient-to-br from-rose-50 via-pink-50 to-rose-100">
+                    <div className="p-3 bg-linear-to-br from-rose-50 via-pink-50 to-rose-100">
                         <iframe 
                             className="rounded-lg w-full"
                             src={embedUrl}

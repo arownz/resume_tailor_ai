@@ -4,7 +4,7 @@ import { Mail, Clock, Home, DollarSign, LogIn } from 'lucide-react';
 
 export const Footer: React.FC = () => {
     return (
-        <footer className="bg-gradient-to-br from-rose-300 via-rose-50 to-rose-300 mt-auto w-full">
+        <footer className="bg-linear-to-br from-rose-300 via-rose-50 to-rose-300 mt-auto w-full">
             <div className="w-full max-w-none px-6 py-12">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-8 w-full">
                     {/* Brand Section */}
@@ -39,23 +39,23 @@ export const Footer: React.FC = () => {
 
                     {/* Navigation Links */}
                     <div>
-                        <h3 className="text-xl font-semibold mb-6 text-rose-800">Quick Links</h3>
+                        <h3 className="text-xl font-semibold mb-6 text-rose-800">Quick Navigations</h3>
                         <div className="space-y-3">
-                            <Home className="w-5 h-5 flex-shrink-0 mt-1 text-rose-900" />
+                            <Home className="w-5 h-5 shrink-0 mt-1 text-rose-900" />
                             <Link
                                 to="/"
-                                className="block text-rose-800 hover:text-rose-900 font-medium transition-colors hover:translate-x-1 transform duration-200"
+                                className="inline-flex text-rose-800 hover:text-rose-900 font-medium transition-colors hover:translate-x-1 transform duration-200"
                             >
                                 Home
                             </Link>
-                            <DollarSign className="w-5 h-5 flex-shrink-0 mt-1 text-rose-900" />
+                            <DollarSign className="w-5 h-5 shrink-0 mt-1 text-rose-900" />
                             <Link
                                 to="/pricing"
                                 className="block text-rose-800 hover:text-rose-900 font-medium transition-colors hover:translate-x-1 transform duration-200"
                             >
                                 Pricing
                             </Link>
-                            <LogIn className="w-5 h-5 flex-shrink-0 mt-1 text-rose-900" />
+                            <LogIn className="w-5 h-5 shrink-0 mt-1 text-rose-900" />
                             <Link
                                 to="/auth"
                                 className="block text-rose-800 hover:text-rose-900 font-medium transition-colors hover:translate-x-1 transform duration-200"
@@ -70,22 +70,22 @@ export const Footer: React.FC = () => {
                         <h3 className="text-xl font-semibold mb-6 text-rose-800">Support</h3>
                         <div className="space-y-4">
                             <div className="flex items-start gap-3">
-                                <Mail className="w-5 h-5 flex-shrink-0 mt-1 text-rose-900" />
+                                <Mail className="w-5 h-5 shrink-0 mt-1 text-rose-900" />
                                 <div className="flex flex-col gap-1">
-                                    <p className="text-sm text-rose-700 font-medium">Email:</p>
+                                    <p className="text-sm text-rose-700 font-medium inline-flex">Email:</p>
                                     <a
-                                        href="mailto:pasionharold252002@gmail.com"
-                                        className="text-rose-800 hover:text-rose-900 font-medium transition-colors break-all"
+                                        href="mailto:solodabu@gmail.com"
+                                        className="text-rose-800 hover:text-rose-900 font-medium transition-colors break-all underline"
                                     >
-                                        pasionharold252002@gmail.com
+                                        solodabu@gmail.com
                                     </a>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <Clock className="w-5 h-5 flex-shrink-0 mt-1 text-rose-900" />
+                                <Clock className="w-5 h-5 shrink-0 mt-1 text-rose-900" />
                                 <div className="flex flex-col gap-1">
-                                    <p className="text-sm text-rose-700 font-medium">Response time:</p>
-                                    <p className="text-rose-800 hover:text-rose-900 font-medium">24-48 hours</p>
+                                    <p className="text-sm text-rose-700 font-medium inline-flex">Response time:</p>
+                                    <p className="text-rose-800 hover:text-rose-900 font-medium inline-flex">12-24 hours</p>
                                 </div>
                             </div>
                         </div>

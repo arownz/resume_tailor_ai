@@ -152,7 +152,7 @@ export const JobDescriptionForm: React.FC<JobDescriptionFormProps> = ({
             <button
                 type="submit"
                 disabled={disabled}
-                className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
                 {disabled ? 'Upload Your Resume' : 'Analyze Resume Match'}
             </button>

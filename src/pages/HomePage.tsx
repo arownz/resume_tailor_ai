@@ -61,7 +61,7 @@ export const HomePage: React.FC = () => {
                 {/* How It Works */}
                 <div className="mb-20 px-4">
                     <h2 className="text-4xl font-bold text-center mb-4">
-                        <span className="bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
+                        <span className="bg-linear-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
                             How It Works?
                         </span>
                     </h2>

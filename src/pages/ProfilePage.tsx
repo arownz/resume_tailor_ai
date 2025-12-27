@@ -1,43 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Calendar, LogOut, Sparkles } from 'lucide-react';
-import { SupabaseService } from '../services/supabase.service';
-
-interface UserProfile {
-    email?: string;
-    user_metadata?: { full_name?: string };
-    app_metadata?: { provider?: string };
-    created_at?: string;
-}
+import { useAuth } from '../contexts/AuthContext';
 
 export const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
-    const [user, setUser] = useState<UserProfile | null>(null);
-    const [loading, setLoading] = useState(true);
+    const { user, loading, signOut } = useAuth();
 
-    const checkUser = React.useCallback(async () => {
-        try {
-            const currentUser = await SupabaseService.getCurrentUser();
-            if (!currentUser) {
-                navigate('/auth');
-                return;
-            }
-            setUser(currentUser);
-        } catch (error) {
-            console.error('Error fetching user:', error);
+    useEffect(() => {
+        if (!loading && !user) {
             navigate('/auth');
-        } finally {
-            setLoading(false);
         }
-    }, [navigate]);
-
-    React.useEffect(() => {
-        checkUser();
-    }, [checkUser]);
+    }, [loading, user, navigate]);
 
     const handleSignOut = async () => {
         try {
-            await SupabaseService.signOut();
+            await signOut();
             navigate('/');
         } catch (error) {
             console.error('Error signing out:', error);
@@ -74,7 +52,7 @@ export const ProfilePage: React.FC = () => {
                     <div className="space-y-6">
                         {/* Avatar Section */}
                         <div className="flex items-center gap-6 pb-6 border-b border-gray-200">
-                            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white text-3xl font-bold">
+                            <div className="w-24 h-24 rounded-full bg-linear-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white text-3xl font-bold">
                                 {user?.email?.charAt(0).toUpperCase() || 'U'}
                             </div>
                             <div>

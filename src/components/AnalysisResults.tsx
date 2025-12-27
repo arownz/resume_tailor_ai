@@ -17,7 +17,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
         <div className="space-y-6">
             {/* Header */}
             {(resumeName || jobTitle) && (
-                <div className="card bg-gradient-to-r from-primary-50 to-blue-50 border border-primary-200">
+                <div className="card bg-linear-to-r from-primary-50 to-blue-50 border border-primary-200">
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">
                         Analysis Results
                     </h2>
@@ -34,7 +34,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             {results.matchedSkills.length > 0 && (
                 <div className="card border-l-4 border-green-500">
                     <div className="flex items-start gap-3">
-                        <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                        <CheckCircle className="w-6 h-6 text-green-600 shrink-0 mt-1" />
                         <div className="flex-1">
                             <h3 className="text-lg font-semibold text-gray-900 mb-3">
                                 Matched Skills ({results.matchedSkills.length})
@@ -58,7 +58,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             {results.missingSkills.length > 0 && (
                 <div className="card border-l-4 border-red-500">
                     <div className="flex items-start gap-3">
-                        <XCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
+                        <XCircle className="w-6 h-6 text-red-600 shrink-0 mt-1" />
                         <div className="flex-1">
                             <h3 className="text-lg font-semibold text-gray-900 mb-3">
                                 Missing Skills ({results.missingSkills.length})
@@ -85,7 +85,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             {results.recommendations && results.recommendations.length > 0 && (
                 <div className="card border-l-4 border-blue-500">
                     <div className="flex items-start gap-3">
-                        <TrendingUp className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
+                        <TrendingUp className="w-6 h-6 text-blue-600 shrink-0 mt-1" />
                         <div className="flex-1">
                             <h3 className="text-lg font-semibold text-gray-900 mb-3">
                                 Recommendations
@@ -107,7 +107,7 @@ export const AnalysisResults: React.FC<AnalysisResultsProps> = ({
             {results.suggestedEdits.length > 0 && (
                 <div className="card border-l-4 border-yellow-500">
                     <div className="flex items-start gap-3">
-                        <Lightbulb className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
+                        <Lightbulb className="w-6 h-6 text-yellow-600 shrink-0 mt-1" />
                         <div className="flex-1">
                             <h3 className="text-lg font-semibold text-gray-900 mb-3">
                                 Suggested Improvements

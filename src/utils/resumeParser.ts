@@ -1,11 +1,14 @@
 import mammoth from "mammoth";
 import * as pdfjsLib from "pdfjs-dist";
-import type { Resume } from "../types/models";
+import type { Resume, ExperienceEntry, EducationEntry } from "../types/models";
 
 // Configure pdf.js worker for browser environments
 if (typeof window !== "undefined") {
   pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
 }
+
+// Helper to generate unique IDs
+const generateId = (): string => Math.random().toString(36).substring(2, 11);
 
 export class ResumeParser {
   /**
@@ -74,107 +77,220 @@ export class ResumeParser {
 
   /**
    * Extract structured data from resume text using pattern matching
-   * This is a basic implementation - can be enhanced with AI models
+   * Returns the new structured Resume format with IDs for each entry
    */
   static extractStructuredData(text: string): Partial<Resume> {
-    const resume: Partial<Resume> = {
-      education: [],
-      experience: [],
-      skills: [],
-      projects: [],
-      certifications: [],
-    };
-
-    // Extract email (basic pattern)
-    const emailMatch = text.match(/[\w.-]+@[\w.-]+\.\w+/);
-    if (emailMatch) {
-      resume.contact = emailMatch[0];
-    }
-
-    // Extract phone number (basic pattern) - kept for potential future use
-    // const phoneMatch = text.match(
-    //   /(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/
-    // );
-
-    // Extract name (usually first line or near top)
     const lines = text.split("\n").filter((line) => line.trim());
-    if (lines.length > 0) {
-      resume.name = lines[0].trim();
-    }
+    
+    // Extract email
+    const emailMatch = text.match(/[\w.-]+@[\w.-]+\.\w+/);
+    const email = emailMatch ? emailMatch[0] : undefined;
 
-    // Extract education (look for degree keywords)
-    const educationKeywords = [
-      "bachelor",
-      "master",
-      "phd",
-      "doctorate",
-      "associate",
-      "diploma",
-      "degree",
-      "university",
-      "college",
-      "institute",
-    ];
+    // Extract phone
+    const phoneMatch = text.match(/(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
+    const phone = phoneMatch ? phoneMatch[0] : undefined;
 
-    resume.education = lines.filter((line) =>
-      educationKeywords.some((keyword) => line.toLowerCase().includes(keyword))
-    );
+    // Extract name (usually first line)
+    const name = lines.length > 0 ? lines[0].trim() : "Unknown";
 
-    // Extract skills (look for skills section)
+    // Build contact string
+    const contactParts = [email, phone].filter(Boolean);
+    const contact = contactParts.join(" | ");
+
+    // Extract summary/objective
+    const summarySection = this.extractSection(text, [
+      "summary",
+      "professional summary",
+      "objective",
+      "profile",
+      "about me"
+    ]);
+
+    // Extract education with structure
+    const educationRaw = this.extractSection(text, [
+      "education",
+      "academic background",
+      "academic qualifications"
+    ]);
+    const education: EducationEntry[] = this.parseEducation(educationRaw, lines);
+
+    // Extract experience with structure
+    const experienceRaw = this.extractSection(text, [
+      "experience",
+      "work experience",
+      "employment history",
+      "professional experience"
+    ]);
+    const experience: ExperienceEntry[] = this.parseExperience(experienceRaw);
+
+    // Extract skills
     const skillsSection = this.extractSection(text, [
       "skills",
       "technical skills",
       "core competencies",
+      "key skills"
     ]);
-    if (skillsSection) {
-      // Split by common delimiters
-      resume.skills = skillsSection
-        .split(/[,;•\n]/)
-        .map((skill) => skill.trim())
-        .filter((skill) => skill.length > 0 && skill.length < 50);
-    }
-
-    // Extract experience (look for experience section)
-    const experienceSection = this.extractSection(text, [
-      "experience",
-      "work experience",
-      "employment history",
-    ]);
-    if (experienceSection) {
-      // Split by job entries (usually separated by blank lines or dates)
-      resume.experience = experienceSection
-        .split(/\n\n+/)
-        .map((exp) => exp.trim())
-        .filter((exp) => exp.length > 20);
-    }
+    const skills = skillsSection
+      ? skillsSection
+          .split(/[,;•|\n]/)
+          .map((skill) => skill.trim())
+          .filter((skill) => skill.length > 0 && skill.length < 50)
+      : [];
 
     // Extract projects
     const projectsSection = this.extractSection(text, [
       "projects",
       "personal projects",
-      "key projects",
+      "key projects"
     ]);
-    if (projectsSection) {
-      resume.projects = projectsSection
-        .split(/\n\n+/)
-        .map((proj) => proj.trim())
-        .filter((proj) => proj.length > 20);
-    }
+    const projects = projectsSection
+      ? projectsSection
+          .split(/\n\n+/)
+          .map((proj) => proj.trim())
+          .filter((proj) => proj.length > 20)
+      : [];
 
     // Extract certifications
     const certsSection = this.extractSection(text, [
       "certifications",
       "certificates",
-      "licenses",
+      "licenses"
     ]);
-    if (certsSection) {
-      resume.certifications = certsSection
-        .split(/\n/)
-        .map((cert) => cert.trim())
-        .filter((cert) => cert.length > 0 && cert.length < 100);
+    const certifications = certsSection
+      ? certsSection
+          .split(/\n/)
+          .map((cert) => cert.trim())
+          .filter((cert) => cert.length > 0 && cert.length < 100)
+      : [];
+
+    return {
+      name,
+      contact,
+      email,
+      phone,
+      summary: summarySection?.trim(),
+      education,
+      experience,
+      skills,
+      projects,
+      certifications,
+    };
+  }
+
+  /**
+   * Parse education section into structured entries
+   */
+  private static parseEducation(rawSection: string | null, allLines: string[]): EducationEntry[] {
+    const educationKeywords = [
+      "bachelor", "master", "phd", "doctorate", "associate", 
+      "diploma", "degree", "university", "college", "institute", "b.s.", "m.s.", "mba"
+    ];
+
+    const entries: EducationEntry[] = [];
+
+    if (rawSection) {
+      const eduLines = rawSection.split(/\n/).filter(l => l.trim());
+      let currentEntry: Partial<EducationEntry> = {};
+
+      for (const line of eduLines) {
+        const lowerLine = line.toLowerCase();
+        const hasKeyword = educationKeywords.some(kw => lowerLine.includes(kw));
+        
+        if (hasKeyword) {
+          if (currentEntry.degree) {
+            entries.push({
+              id: generateId(),
+              degree: currentEntry.degree,
+              institution: currentEntry.institution,
+              year: currentEntry.year,
+              details: currentEntry.details
+            });
+          }
+          currentEntry = { degree: line.trim() };
+        } else if (currentEntry.degree) {
+          // Check for year pattern
+          const yearMatch = line.match(/\b(19|20)\d{2}\b/);
+          if (yearMatch && !currentEntry.year) {
+            currentEntry.year = line.trim();
+          } else if (!currentEntry.institution) {
+            currentEntry.institution = line.trim();
+          } else {
+            currentEntry.details = (currentEntry.details || "") + " " + line.trim();
+          }
+        }
+      }
+
+      // Add last entry
+      if (currentEntry.degree) {
+        entries.push({
+          id: generateId(),
+          degree: currentEntry.degree,
+          institution: currentEntry.institution,
+          year: currentEntry.year,
+          details: currentEntry.details?.trim()
+        });
+      }
     }
 
-    return resume;
+    // Fallback: scan all lines for education keywords
+    if (entries.length === 0) {
+      const eduLines = allLines.filter(line =>
+        educationKeywords.some(keyword => line.toLowerCase().includes(keyword))
+      );
+      for (const line of eduLines) {
+        entries.push({
+          id: generateId(),
+          degree: line.trim()
+        });
+      }
+    }
+
+    return entries;
+  }
+
+  /**
+   * Parse experience section into structured entries
+   */
+  private static parseExperience(rawSection: string | null): ExperienceEntry[] {
+    const entries: ExperienceEntry[] = [];
+
+    if (!rawSection) return entries;
+
+    // Split by double newlines or job-like patterns
+    const expBlocks = rawSection.split(/\n{2,}/).filter(block => block.trim().length > 20);
+
+    for (const block of expBlocks) {
+      const lines = block.split("\n").map(l => l.trim()).filter(Boolean);
+      if (lines.length === 0) continue;
+
+      // First line is usually title or company
+      const firstLine = lines[0];
+      const secondLine = lines[1] || "";
+      
+      // Try to extract duration (date range pattern)
+      const durationMatch = block.match(/((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s*\d{4})\s*[-–—to]+\s*((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s*\d{4}|Present|Current)/i);
+      const duration = durationMatch ? durationMatch[0] : undefined;
+
+      // Build description from remaining lines
+      const descLines = lines.slice(1).filter(l => 
+        !l.match(/^((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec))/i)
+      );
+      
+      // Extract bullet points
+      const bullets = descLines.filter(l => l.startsWith("•") || l.startsWith("-") || l.startsWith("*"));
+      const description = descLines.join("\n");
+
+      entries.push({
+        id: generateId(),
+        title: firstLine,
+        company: secondLine.length > 0 && !secondLine.startsWith("•") ? secondLine : undefined,
+        duration,
+        description,
+        bullets: bullets.length > 0 ? bullets.map(b => b.replace(/^[•\-*]\s*/, "")) : undefined
+      });
+    }
+
+    return entries;
   }
 
   /**

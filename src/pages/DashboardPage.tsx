@@ -3,17 +3,25 @@ import { FileUpload } from '../components/FileUpload';
 import { JobDescriptionForm } from '../components/JobDescriptionForm';
 import { AnalysisResults } from '../components/AnalysisResults';
 import { ScoreCard } from '../components/ScoreCard';
+import { ResumeEditor } from '../components/ResumeEditor';
 import { ResumeParser } from '../utils/resumeParser';
 import { TailoringService } from '../services/tailoring.service';
+import { PDFService } from '../services/pdf.service';
 import type { Resume, JobDescription, TailoredOutput } from '../types/models';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Download, FileText, Edit3, Sparkles } from 'lucide-react';
+
+type ViewMode = 'analysis' | 'editor' | 'preview';
 
 export const DashboardPage: React.FC = () => {
     const [resume, setResume] = useState<Resume | null>(null);
+    const [originalResume, setOriginalResume] = useState<Resume | null>(null);
     const [resumeFile, setResumeFile] = useState<File | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [analysisResults, setAnalysisResults] = useState<TailoredOutput | null>(null);
+    const [modifiedResumePdf, setModifiedResumePdf] = useState<Blob | null>(null);
+    const [jobDescription, setJobDescription] = useState<JobDescription | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [viewMode, setViewMode] = useState<ViewMode>('analysis');
 
     // use a process id to ignore results from stale/aborted operations
     const processIdRef = useRef(0);
@@ -39,7 +47,9 @@ export const DashboardPage: React.FC = () => {
 
             // Ensure still the active process
             if (processIdRef.current === myProcessId) {
-                setResume(extractedData as Resume);
+                const resumeData = extractedData as Resume;
+                setResume(resumeData);
+                setOriginalResume(JSON.parse(JSON.stringify(resumeData)));
             }
         } catch (err) {
             // If this process was cancelled, do not override outer state
@@ -60,12 +70,14 @@ export const DashboardPage: React.FC = () => {
         processIdRef.current += 1; // bump to invalidate
         setIsProcessing(false);
         setResume(null);
+        setOriginalResume(null);
         setResumeFile(null);
         setAnalysisResults(null);
         setError(null);
+        setViewMode('analysis');
     };
 
-    const handleJobDescriptionSubmit = async (jobDescription: JobDescription) => {
+    const handleJobDescriptionSubmit = async (jobDesc: JobDescription) => {
         if (!resume) {
             setError('Please upload a resume first');
             return;
@@ -76,8 +88,21 @@ export const DashboardPage: React.FC = () => {
 
         try {
             // Analyze resume against job description
-            const results = await TailoringService.analyzeResume(resume, jobDescription);
+            const results = await TailoringService.analyzeResume(resume, jobDesc);
             setAnalysisResults(results);
+            setJobDescription(jobDesc);
+
+            // Update resume with tailored version if available
+            if (results.tailoredResume) {
+                setResume(results.tailoredResume);
+            }
+
+            // Generate modified resume PDF
+            const pdfBlob = await PDFService.generateModifiedResume(
+                results.tailoredResume || resume, 
+                results
+            );
+            setModifiedResumePdf(pdfBlob);
 
             // Scroll to results
             setTimeout(() => {
@@ -86,6 +111,7 @@ export const DashboardPage: React.FC = () => {
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to analyze resume');
             setAnalysisResults(null);
+            setModifiedResumePdf(null);
         } finally {
             setIsProcessing(false);
         }
@@ -108,7 +134,7 @@ export const DashboardPage: React.FC = () => {
                 {/* Error Alert */}
                 {error && (
                     <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-                        <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                        <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                         <div>
                             <h3 className="font-semibold text-red-900">Error</h3>
                             <p className="text-red-700">{error}</p>
@@ -183,11 +209,62 @@ export const DashboardPage: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Detailed Results */}
-                        <AnalysisResults
-                            results={analysisResults}
-                            resumeName={resumeFile?.name}
-                        />
+                        {/* View Mode Toggle */}
+                        <div className="flex justify-center">
+                            <div className="inline-flex rounded-lg bg-gray-100 p-1">
+                                <button
+                                    onClick={() => setViewMode('analysis')}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                                        viewMode === 'analysis'
+                                            ? 'bg-white text-rose-600 shadow-sm'
+                                            : 'text-gray-600 hover:text-gray-900'
+                                    }`}
+                                >
+                                    <Sparkles className="w-4 h-4" />
+                                    Analysis
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('editor')}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                                        viewMode === 'editor'
+                                            ? 'bg-white text-rose-600 shadow-sm'
+                                            : 'text-gray-600 hover:text-gray-900'
+                                    }`}
+                                >
+                                    <Edit3 className="w-4 h-4" />
+                                    Edit Resume
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Analysis View */}
+                        {viewMode === 'analysis' && (
+                            <AnalysisResults
+                                results={analysisResults}
+                                resumeName={resumeFile?.name}
+                            />
+                        )}
+
+                        {/* Editor View */}
+                        {viewMode === 'editor' && resume && (
+                            <ResumeEditor
+                                resume={resume}
+                                tailoredResume={analysisResults.tailoredResume}
+                                onChange={(updatedResume) => {
+                                    setResume(updatedResume);
+                                    // Regenerate PDF when resume is edited
+                                    PDFService.generateModifiedResume(updatedResume, analysisResults)
+                                        .then(setModifiedResumePdf)
+                                        .catch(console.error);
+                                }}
+                                onRevert={() => {
+                                    if (originalResume) {
+                                        setResume(JSON.parse(JSON.stringify(originalResume)));
+                                    }
+                                }}
+                                isModified={!!analysisResults.tailoredResume}
+                            />
+                        )}
 
                         {/* Action Buttons */}
                         <div className="card">
@@ -196,27 +273,61 @@ export const DashboardPage: React.FC = () => {
                                     onClick={() => {
                                         setAnalysisResults(null);
                                         setResume(null);
+                                        setOriginalResume(null);
                                         setResumeFile(null);
+                                        setModifiedResumePdf(null);
+                                        setJobDescription(null);
+                                        setViewMode('analysis');
                                         window.scrollTo({ top: 0, behavior: 'smooth' });
                                     }}
-                                    className="btn-secondary"
+                                    className="btn-secondary cursor-pointer"
                                 >
                                     Analyze Another Resume
                                 </button>
-                                <button
-                                    onClick={() => {
-                                        const resultsText = JSON.stringify(analysisResults, null, 2);
-                                        const blob = new Blob([resultsText], { type: 'application/json' });
-                                        const url = URL.createObjectURL(blob);
-                                        const a = document.createElement('a');
-                                        a.href = url;
-                                        a.download = `resume-analysis-${Date.now()}.json`;
-                                        a.click();
-                                    }}
-                                    className="btn-primary"
-                                >
-                                    Download Results
-                                </button>
+
+                                {/* Download Modified Resume PDF */}
+                                {modifiedResumePdf && (
+                                    <button
+                                        onClick={() => {
+                                            PDFService.downloadPDF(
+                                                modifiedResumePdf,
+                                                `tailored-resume-${Date.now()}.pdf`
+                                            );
+                                        }}
+                                        className="btn-primary flex items-center gap-2 justify-center cursor-pointer"
+                                    >
+                                        <Download className="w-4 h-4 " />
+                                        Download Modified Resume
+                                    </button>
+                                )}
+
+                                {/* Download Analysis Report */}
+                                {resume && jobDescription && (
+                                    <button
+                                        onClick={async () => {
+                                            try {
+                                                const reportBlob = await PDFService.generateComparisonPDF(
+                                                    resume,
+                                                    analysisResults!,
+                                                    {
+                                                        title: jobDescription.title,
+                                                        company: jobDescription.company || 'N/A'
+                                                    }
+                                                );
+                                                PDFService.downloadPDF(
+                                                    reportBlob,
+                                                    `analysis-report-${Date.now()}.pdf`
+                                                );
+                                            } catch (err) {
+                                                setError(err instanceof Error ? err.message : 'Failed to generate report');
+                                            }
+                                        }}
+                                        className="btn-secondary flex items-center gap-2 justify-center cursor-pointer"
+                                    >
+                                        <FileText className="w-4 h-4" />
+                                        Download Analysis Report
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
