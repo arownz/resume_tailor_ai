@@ -208,4 +208,65 @@ export class HuggingFaceService {
       throw error;
     }
   }
+
+  /**
+   * Extract structured information from resume text using NER
+   * Identifies persons, organizations, locations, etc.
+   */
+  static async enhanceResumeExtraction(
+    text: string
+  ): Promise<{
+    persons: string[];
+    organizations: string[];
+    locations: string[];
+    misc: string[];
+  }> {
+    try {
+      // Use NER to extract entities
+      const entities = await this.extractEntities(text.substring(0, 2000)); // Limit text length
+      
+      const persons: string[] = [];
+      const organizations: string[] = [];
+      const locations: string[] = [];
+      const misc: string[] = [];
+      
+      for (const entity of entities) {
+        const entityType = entity.entity_group || entity.entity || '';
+        const word = entity.word.replace(/^##/, ''); // Remove BERT subword prefix
+        
+        if (entity.score < 0.7) continue; // Only high-confidence entities
+        
+        if (entityType.includes('PER')) {
+          if (!persons.includes(word) && word.length > 1) {
+            persons.push(word);
+          }
+        } else if (entityType.includes('ORG')) {
+          if (!organizations.includes(word) && word.length > 1) {
+            organizations.push(word);
+          }
+        } else if (entityType.includes('LOC') || entityType.includes('GPE')) {
+          if (!locations.includes(word) && word.length > 1) {
+            locations.push(word);
+          }
+        } else if (entityType.includes('MISC')) {
+          if (!misc.includes(word) && word.length > 1) {
+            misc.push(word);
+          }
+        }
+      }
+      
+      return { persons, organizations, locations, misc };
+    } catch (error) {
+      console.error("Error enhancing resume extraction:", error);
+      // Return empty results on error (graceful degradation)
+      return { persons: [], organizations: [], locations: [], misc: [] };
+    }
+  }
+
+  /**
+   * Check if HuggingFace API is available
+   */
+  static isAvailable(): boolean {
+    return !!HF_API_KEY;
+  }
 }

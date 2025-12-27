@@ -277,7 +277,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
     return (
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             {/* Editor Header */}
-            <div className="bg-gradient-to-r from-rose-500 to-rose-600 text-white p-4">
+            <div className="bg-linear-to-r from-rose-500 to-rose-600 text-white p-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <Edit3 className="w-6 h-6" />

@@ -35,14 +35,19 @@ export const DashboardPage: React.FC = () => {
         try {
             // Parse the resume file
             const text = await ResumeParser.parseFile(file);
+            console.log('[DashboardPage] Extracted text length:', text.length);
+            console.log('[DashboardPage] First 500 chars:', text.substring(0, 500));
 
             // If the user cancelled while parsing, ignore the result
             if (processIdRef.current !== myProcessId) return;
 
-            const extractedData = ResumeParser.extractStructuredData(text);
+            // Use AI-enhanced extraction for better results with formatted resumes
+            const extractedData = await ResumeParser.extractStructuredDataWithAI(text);
+            console.log('[DashboardPage] Extracted data:', extractedData);
 
             if (!ResumeParser.validateResume(extractedData)) {
-                throw new Error('Unable to extract valid resume data. Please check your file.');
+                console.warn('[DashboardPage] Validation failed, extracted data:', extractedData);
+                throw new Error('Unable to extract valid resume data. Please check your file format.');
             }
 
             // Ensure still the active process

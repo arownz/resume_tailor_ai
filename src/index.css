@@ -54,12 +54,13 @@ h6 {
   color: white;
   font-weight: 700;
   padding: 0.625rem 1.25rem;
-    border-radius: 0.75rem;
-    transition: all 0.2s ease;
-    border: 2px solid transparent;
-    position: relative;
-    overflow: hidden;
-  }
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
   
   .btn-primary::before {
     content: '';
@@ -95,6 +96,7 @@ h6 {
   border-radius: 0.5rem;
   transition: all 0.15s ease;
   border: 2px solid transparent;
+  cursor: pointer;
 }
 
 .btn-secondary:hover {
@@ -201,4 +203,19 @@ h6 {
         h3 {
           font-size: 1.25rem;
         }
-        }
+}
+
+/* Global button cursor pointer */
+button,
+[role="button"],
+.btn-primary,
+.btn-secondary,
+.btn-lg,
+.btn-sm {
+  cursor: pointer;
+}
+
+button:disabled,
+[disabled] {
+  cursor: not-allowed;
+}
