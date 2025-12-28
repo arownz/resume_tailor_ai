@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { SupabaseService } from '../services/supabase.service';
 import type { User } from '@supabase/supabase-js';
 
-const GUEST_ANALYSIS_LIMIT = 3;
+const GUEST_ANALYSIS_LIMIT = 5;
 const GUEST_USAGE_KEY = 'resume_tailor_guest_usage';
 
 interface GuestUsage {
@@ -18,7 +18,7 @@ interface AuthContextType {
     canAnalyze: boolean;
     incrementGuestUsage: () => void;
     signIn: (email: string, password: string) => Promise<void>;
-    signUp: (email: string, password: string) => Promise<void>;
+    signUp: (email: string, password: string, username?: string) => Promise<void>;
     signInWithGitHub: () => Promise<void>;
     signOut: () => Promise<void>;
     refreshUser: () => Promise<void>;
@@ -141,10 +141,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const signUp = async (email: string, password: string) => {
+    const signUp = async (email: string, password: string, username?: string) => {
         setLoading(true);
         try {
-            const data = await SupabaseService.signUp(email, password);
+            const data = await SupabaseService.signUp(email, password, username);
             setUser(data.user ?? null);
         } finally {
             setLoading(false);

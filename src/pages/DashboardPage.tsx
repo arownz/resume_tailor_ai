@@ -8,9 +8,10 @@ import { ResumeEditor } from '../components/ResumeEditor';
 import { ResumeParser } from '../utils/resumeParser';
 import { TailoringService } from '../services/tailoring.service';
 import { PDFService, THEME_COLORS, type ThemeColor } from '../services/pdf.service';
+import { DocxService } from '../services/docx.service';
 import { useAuth } from '../contexts/AuthContext';
 import type { Resume, JobDescription, TailoredOutput } from '../types/models';
-import { Loader2, AlertCircle, Download, FileText, Edit3, Sparkles, Lock } from 'lucide-react';
+import { Loader2, AlertCircle, Download, FileText, Edit3, Sparkles, Lock, FileType } from 'lucide-react';
 
 type ViewMode = 'analysis' | 'editor' | 'preview';
 
@@ -206,7 +207,7 @@ export const DashboardPage: React.FC = () => {
                     <div className="space-y-6">
                         <div className="card">
                             <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                                Step 1: Upload Resume
+                                Step 1: Upload Resume/CV
                             </h2>
                             <FileUpload
                                 onFileSelect={handleFileSelect}
@@ -365,7 +366,31 @@ export const DashboardPage: React.FC = () => {
                                         className="btn-primary flex items-center gap-2 justify-center cursor-pointer"
                                     >
                                         <Download className="w-4 h-4 " />
-                                        Download Modified Resume
+                                        Download PDF
+                                    </button>
+                                )}
+
+                                {/* Download as DOCX (Editable Word Document) */}
+                                {resume && (
+                                    <button
+                                        onClick={async () => {
+                                            try {
+                                                const themeHex = themeColor.name === 'None' 
+                                                    ? '000000' 
+                                                    : themeColor.primary.map(c => c.toString(16).padStart(2, '0')).join('');
+                                                const docxBlob = await DocxService.generateResume(resume, themeHex);
+                                                DocxService.downloadDocx(
+                                                    docxBlob,
+                                                    `tailored-resume-${Date.now()}.docx`
+                                                );
+                                            } catch (err) {
+                                                setError(err instanceof Error ? err.message : 'Failed to generate DOCX');
+                                            }
+                                        }}
+                                        className="btn-secondary flex items-center gap-2 justify-center cursor-pointer"
+                                    >
+                                        <FileType className="w-4 h-4" />
+                                        Download DOCX
                                     </button>
                                 )}
 

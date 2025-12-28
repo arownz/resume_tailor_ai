@@ -18,7 +18,12 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-rose-50 via-pink-50 to-rose-100">
-          <Navigation />
+          {/* Fixed Header */}
+          <header className="fixed top-0 left-0 right-0 z-50">
+            <Navigation />
+          </header>
+          {/* Spacer for fixed header */}
+          <div className="h-20"></div>
           <main className="flex-1 w-full">
             <div className="max-w-7xl mx-auto px-8 py-8">
               <Suspense fallback={

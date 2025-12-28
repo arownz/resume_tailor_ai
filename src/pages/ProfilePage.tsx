@@ -36,9 +36,20 @@ export const ProfilePage: React.FC = () => {
     return (
         <div className="min-h-screen w-full py-12">
             <div className="w-full px-6 lg:px-12 xl:px-20">
+                {/* Large Profile Initial Header */}
+                <div className="flex flex-col items-center mb-8">
+                    <div className="w-32 h-32 rounded-full bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center text-white text-5xl font-bold shadow-xl border-4 border-white">
+                        {(user?.user_metadata?.username || user?.user_metadata?.full_name || user?.email)?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <h1 className="text-3xl font-bold text-gray-900 mt-4">
+                        {user?.user_metadata?.username || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+                    </h1>
+                    <p className="text-gray-600">{user?.email}</p>
+                </div>
+
                 <div className="card">
                     <div className="flex items-center justify-between mb-8 pb-6 border-b-2 border-gray-100">
-                        <h1 className="text-4xl font-bold text-gray-900">Profile</h1>
+                        <h2 className="text-2xl font-bold text-gray-900">Account Details</h2>
                         <button
                             onClick={handleSignOut}
                             className="btn-secondary flex items-center gap-2"
@@ -50,18 +61,6 @@ export const ProfilePage: React.FC = () => {
 
                     {/* Profile Information */}
                     <div className="space-y-6">
-                        {/* Avatar Section */}
-                        <div className="flex items-center gap-6 pb-6 border-b border-gray-200">
-                            <div className="w-24 h-24 rounded-full bg-linear-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white text-3xl font-bold">
-                                {user?.email?.charAt(0).toUpperCase() || 'U'}
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                                    {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
-                                </h2>
-                                <p className="text-gray-600">{user?.email}</p>
-                            </div>
-                        </div>
 
                         {/* Account Details */}
                         <div className="grid md:grid-cols-2 gap-6">

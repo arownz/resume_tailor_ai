@@ -32,12 +32,18 @@ export class SupabaseService {
   /**
    * Sign up a new user
    */
-  static async signUp(email: string, password: string) {
+  static async signUp(email: string, password: string, username?: string) {
     if (!supabase) throw new Error("Supabase not configured");
 
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          username: username || email.split('@')[0],
+          display_name: username || email.split('@')[0],
+        },
+      },
     });
 
     if (error) throw error;

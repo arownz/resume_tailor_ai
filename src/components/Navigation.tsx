@@ -14,7 +14,7 @@ export const Navigation: React.FC = () => {
     };
 
     return (
-        <nav className="bg-rose-100 shadow-md sticky top-0 z-50 border-b-2 border-rose-300 w-full">
+        <nav className="bg-rose-100 shadow-md border-b-2 border-rose-300 w-full">
             <div className="max-w-7xl mx-auto px-8">
                 <div className="flex items-center justify-between h-20">
                     {/* Logo */}
@@ -76,10 +76,10 @@ export const Navigation: React.FC = () => {
                                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-rose-200 hover:bg-rose-300 transition-colors"
                                 >
                                     <div className="w-8 h-8 rounded-full bg-linear-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white font-bold">
-                                        {user.email?.charAt(0).toUpperCase()}
+                                        {(user.user_metadata?.username || user.user_metadata?.full_name || user.email)?.charAt(0).toUpperCase() || 'U'}
                                     </div>
                                     <span className="font-medium text-gray-900">
-                                        {user.email?.split('@')[0]}
+                                        {user.user_metadata?.username || user.user_metadata?.full_name || user.email?.split('@')[0]}
                                     </span>
                                 </button>
 
@@ -168,11 +168,11 @@ export const Navigation: React.FC = () => {
                                     <div className="px-4 py-2 border-t border-gray-200 mt-2">
                                         <div className="flex items-center gap-3 mb-2">
                                             <div className="w-10 h-10 rounded-full bg-linear-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white font-bold">
-                                                {user.email?.charAt(0).toUpperCase()}
+                                                {(user.user_metadata?.username || user.user_metadata?.full_name || user.email)?.charAt(0)}
                                             </div>
                                             <div className="flex-1">
                                                 <p className="font-medium text-gray-900">
-                                                    {user.email?.split('@')[0]}
+                                                    {user.user_metadata?.username || user.user_metadata?.full_name || user.email?.split('@')[0]}
                                                 </p>
                                                 <p className="text-sm text-gray-500">
                                                     {user.email}
