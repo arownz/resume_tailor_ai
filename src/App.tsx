@@ -12,7 +12,7 @@ const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ de
 const PricingPage = lazy(() => import('./pages/PricingPage').then(m => ({ default: m.PricingPage })));
 const AuthPage = lazy(() => import('./pages/AuthPage').then(m => ({ default: m.AuthPage })));
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
-
+// APP
 function App() {
   return (
     <AuthProvider>
