@@ -1,13 +1,31 @@
 import jsPDF from "jspdf";
 import type { Resume, TailoredOutput } from "../types/models";
 
+// Theme color presets
+export interface ThemeColor {
+  name: string;
+  primary: [number, number, number]; // RGB
+  text: [number, number, number]; // RGB for header text
+}
+
+export const THEME_COLORS: ThemeColor[] = [
+  { name: "Rose", primary: [248, 106, 104], text: [255, 255, 255] },
+  { name: "Blue", primary: [59, 130, 246], text: [255, 255, 255] },
+  { name: "Green", primary: [34, 197, 94], text: [255, 255, 255] },
+  { name: "Purple", primary: [147, 51, 234], text: [255, 255, 255] },
+  { name: "Orange", primary: [249, 115, 22], text: [255, 255, 255] },
+  { name: "Slate", primary: [71, 85, 105], text: [255, 255, 255] },
+  { name: "None", primary: [255, 255, 255], text: [0, 0, 0] }, // No header background
+];
+
 export class PDFService {
   /**
    * Generate a modified resume PDF based on AI suggestions
    */
   static async generateModifiedResume(
     originalResume: Resume,
-    modifications: TailoredOutput
+    _modifications: TailoredOutput,
+    themeColor: ThemeColor = THEME_COLORS[0] // Default to Rose
   ): Promise<Blob> {
     const pdf = new jsPDF();
     const pageWidth = pdf.internal.pageSize.getWidth();
@@ -35,123 +53,160 @@ export class PDFService {
       yPosition += lines.length * fontSize * 0.4 + 2;
     };
 
-    // Header
-    pdf.setFillColor(248, 106, 104); // Rose color
-    pdf.rect(0, 0, pageWidth, 30, "F");
-    pdf.setTextColor(255, 255, 255);
+    // Helper for section headers
+    const addSectionHeader = (title: string) => {
+      yPosition += 5;
+      pdf.setFontSize(12);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(themeColor.name === "None" ? 0 : themeColor.primary[0], themeColor.name === "None" ? 0 : themeColor.primary[1], themeColor.name === "None" ? 0 : themeColor.primary[2]);
+      pdf.text(title.toUpperCase(), marginLeft, yPosition);
+      yPosition += 2;
+      // Add underline
+      pdf.setDrawColor(themeColor.name === "None" ? 200 : themeColor.primary[0], themeColor.name === "None" ? 200 : themeColor.primary[1], themeColor.name === "None" ? 200 : themeColor.primary[2]);
+      pdf.setLineWidth(0.5);
+      pdf.line(marginLeft, yPosition, pageWidth - marginRight, yPosition);
+      yPosition += 5;
+      pdf.setTextColor(0, 0, 0);
+    };
+
+    // Header with theme color
+    if (themeColor.name !== "None") {
+      pdf.setFillColor(themeColor.primary[0], themeColor.primary[1], themeColor.primary[2]);
+      pdf.rect(0, 0, pageWidth, 35, "F");
+      pdf.setTextColor(themeColor.text[0], themeColor.text[1], themeColor.text[2]);
+    } else {
+      pdf.setTextColor(0, 0, 0);
+    }
+    
     pdf.setFontSize(24);
     pdf.setFont("helvetica", "bold");
-    pdf.text(originalResume.name, marginLeft, 20);
-    yPosition = 40;
-
-    // Contact Info
-    pdf.setTextColor(0, 0, 0);
+    pdf.text(originalResume.name, marginLeft, 22);
+    
+    // Contact info in header
     pdf.setFontSize(10);
     pdf.setFont("helvetica", "normal");
-    if (originalResume.contact) {
-      pdf.text(originalResume.contact, marginLeft, yPosition);
-      yPosition += 6;
+    const contactParts: string[] = [];
+    if (originalResume.email) contactParts.push(originalResume.email);
+    if (originalResume.phone) contactParts.push(originalResume.phone);
+    if (originalResume.location) contactParts.push(originalResume.location);
+    if (contactParts.length > 0) {
+      pdf.text(contactParts.join("  |  "), marginLeft, 30);
     }
-    if (originalResume.email) {
-      pdf.text(originalResume.email, marginLeft, yPosition);
-      yPosition += 10;
-    }
+    
+    yPosition = 45;
+    pdf.setTextColor(0, 0, 0);
 
     // Professional Summary (if exists)
     if (originalResume.summary) {
-      yPosition += 5;
-      addText("PROFESSIONAL SUMMARY", 14, true);
-      yPosition += 2;
+      addSectionHeader("Professional Summary");
+      pdf.setFontSize(10);
+      pdf.setFont("helvetica", "normal");
       addText(originalResume.summary, 10);
-      yPosition += 5;
     }
 
-    // Skills Section with matched skills highlighted
-    yPosition += 5;
-    addText("SKILLS", 14, true);
-    yPosition += 2;
+    // Skills Section
+    addSectionHeader("Skills");
+    
+    // Organize skills nicely
+    const allSkills = [...originalResume.skills];
+    const skillsText = allSkills.join("  •  ");
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "normal");
+    addText(skillsText, 10);
 
-    // Add matched skills first (these are good for the job)
-    if (modifications.matchedSkills.length > 0) {
-      pdf.setTextColor(34, 197, 94); // Green color
-      addText(`✓ ${modifications.matchedSkills.join(" • ")}`, 10);
-      pdf.setTextColor(0, 0, 0);
-    }
-
-    // Add remaining skills
-    const remainingSkills = originalResume.skills.filter(
-      (skill) => !modifications.matchedSkills.includes(skill)
-    );
-    if (remainingSkills.length > 0) {
-      addText(remainingSkills.join(" • "), 10);
-    }
-    yPosition += 5;
-
-    // Experience Section with enhanced descriptions
+    // Experience Section
     if (originalResume.experience && originalResume.experience.length > 0) {
-      yPosition += 5;
-      addText("PROFESSIONAL EXPERIENCE", 14, true);
-      yPosition += 5;
+      addSectionHeader("Professional Experience");
 
       originalResume.experience.forEach((exp) => {
-        // Company and Title
-        addText(`${exp.title}`, 12, true);
+        // Job title and company on same line
+        pdf.setFontSize(11);
+        pdf.setFont("helvetica", "bold");
+        pdf.text(exp.title, marginLeft, yPosition);
+        
         if (exp.company) {
+          const titleWidth = pdf.getTextWidth(exp.title);
+          pdf.setFont("helvetica", "normal");
+          pdf.text(` at ${exp.company}`, marginLeft + titleWidth, yPosition);
+        }
+        yPosition += 5;
+        
+        // Duration on next line, italicized
+        if (exp.duration) {
           pdf.setFontSize(10);
           pdf.setFont("helvetica", "italic");
-          pdf.text(`${exp.company}`, marginLeft, yPosition);
-          yPosition += 5;
-        }
-        if (exp.duration) {
-          pdf.setFont("helvetica", "normal");
+          pdf.setTextColor(100, 100, 100);
           pdf.text(exp.duration, marginLeft, yPosition);
+          pdf.setTextColor(0, 0, 0);
           yPosition += 5;
         }
 
-        // Description
+        // Description with bullet points
         if (exp.description) {
-          addText(exp.description, 10);
+          pdf.setFontSize(10);
+          pdf.setFont("helvetica", "normal");
+          const descLines = exp.description.split('\n').filter(l => l.trim());
+          descLines.forEach(line => {
+            const bulletLine = line.startsWith('•') || line.startsWith('-') ? line : `• ${line}`;
+            addText(bulletLine, 10);
+          });
         }
-        yPosition += 8;
+        yPosition += 3;
       });
     }
 
     // Education Section
     if (originalResume.education && originalResume.education.length > 0) {
-      yPosition += 5;
-      addText("EDUCATION", 14, true);
-      yPosition += 5;
+      addSectionHeader("Education");
 
       originalResume.education.forEach((edu) => {
-        addText(edu.degree || "Degree", 11, true);
+        pdf.setFontSize(11);
+        pdf.setFont("helvetica", "bold");
+        pdf.text(edu.degree || "Degree", marginLeft, yPosition);
+        yPosition += 5;
+        
         if (edu.institution) {
-          addText(edu.institution, 10);
+          pdf.setFontSize(10);
+          pdf.setFont("helvetica", "normal");
+          pdf.text(edu.institution, marginLeft, yPosition);
+          yPosition += 5;
         }
         if (edu.year) {
           pdf.setFontSize(10);
           pdf.setFont("helvetica", "italic");
+          pdf.setTextColor(100, 100, 100);
           pdf.text(edu.year, marginLeft, yPosition);
-          yPosition += 8;
+          pdf.setTextColor(0, 0, 0);
+          yPosition += 5;
         }
-      });
-    }
-
-    // Add recommendations as footer on last page
-    yPosition += 10;
-    if (
-      modifications.recommendations &&
-      modifications.recommendations.length > 0
-    ) {
-      pdf.addPage();
-      yPosition = 20;
-      addText("AI RECOMMENDATIONS FOR IMPROVEMENT", 14, true);
-      yPosition += 5;
-
-      modifications.recommendations.forEach((rec, index) => {
-        addText(`${index + 1}. ${rec}`, 9);
         yPosition += 3;
       });
     }
+
+    // Projects Section (if exists)
+    if (originalResume.projects && originalResume.projects.length > 0) {
+      addSectionHeader("Projects");
+      
+      originalResume.projects.forEach((project) => {
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "normal");
+        addText(`• ${project}`, 10);
+      });
+    }
+
+    // Certifications Section (if exists)
+    if (originalResume.certifications && originalResume.certifications.length > 0) {
+      addSectionHeader("Certifications");
+      
+      originalResume.certifications.forEach((cert) => {
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "normal");
+        addText(`• ${cert}`, 10);
+      });
+    }
+
+    // NOTE: AI Recommendations removed from PDF output per user request
+    // They are still available in the Analysis Report
 
     // Generate blob
     return pdf.output("blob");

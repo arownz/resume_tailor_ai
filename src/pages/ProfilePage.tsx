@@ -120,12 +120,12 @@ export const ProfilePage: React.FC = () => {
                                     <Sparkles className="w-4 h-4" />
                                     Tailor Resume
                                 </button>
-                                <button
+                                {/* <button
                                     onClick={() => navigate('/pricing')}
                                     className="btn-secondary"
                                 >
                                     View Pricing
-                                </button>
+                                </button> */}
                             </div>
                         </div>
                     </div>

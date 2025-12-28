@@ -1,12 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Clock, Home, DollarSign, LogIn } from 'lucide-react';
+import { Mail, Clock, Home, LogIn, User } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Footer: React.FC = () => {
+    const { user, loading } = useAuth();
+
     return (
-        <footer className="bg-linear-to-br from-rose-300 via-rose-50 to-rose-300 mt-auto w-full">
-            <div className="w-full max-w-none px-6 py-12">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-8 w-full">
+        <footer className="bg-gradient-to-br from-rose-200 via-rose-50 to-rose-200 mt-auto w-full">
+            <div className="max-w-7xl mx-auto px-8 py-12">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-16 mb-8">
                     {/* Brand Section */}
                     <div>
                         <div className="flex items-center gap-3 mb-6">
@@ -33,59 +36,77 @@ export const Footer: React.FC = () => {
                             AI-powered resume analysis and tailoring — professional, clear, and recruiter-focused.
                         </p>
                         <p className="text-rose-500 mt-4 text-sm italic font-medium">
-                            Tailor for job seekers
+                            Tailor for laziness
                         </p>
                     </div>
 
                     {/* Navigation Links */}
-                    <div>
-                        <h3 className="text-xl font-semibold mb-6 text-rose-800">Quick Navigations</h3>
-                        <div className="space-y-3">
-                            <Home className="w-5 h-5 shrink-0 mt-1 text-rose-900" />
-                            <Link
-                                to="/"
-                                className="inline-flex text-rose-800 hover:text-rose-900 font-medium transition-colors hover:translate-x-1 transform duration-200"
-                            >
-                                Home
-                            </Link>
-                            <DollarSign className="w-5 h-5 shrink-0 mt-1 text-rose-900" />
-                            <Link
-                                to="/pricing"
-                                className="block text-rose-800 hover:text-rose-900 font-medium transition-colors hover:translate-x-1 transform duration-200"
-                            >
-                                Pricing
-                            </Link>
-                            <LogIn className="w-5 h-5 shrink-0 mt-1 text-rose-900" />
-                            <Link
-                                to="/auth"
-                                className="block text-rose-800 hover:text-rose-900 font-medium transition-colors hover:translate-x-1 transform duration-200"
-                            >
-                                Sign in
-                            </Link>
-                        </div>
+                    <div className="text-center md:text-left">
+                        <h3 className="text-xl font-semibold mb-6 text-rose-800 italic">Quick Navigations</h3>
+                        <ul className="space-y-4">
+                            <li>
+                                <Link
+                                    to="/"
+                                    className="inline-flex items-center gap-3 text-rose-800 hover:text-rose-900 font-medium transition-colors hover:translate-x-1 transform duration-200"
+                                >
+                                    <Home className="w-5 h-5 shrink-0 text-rose-900" />
+                                    Home
+                                </Link>
+                            </li>
+                            {/* <li>
+                                <Link
+                                    to="/pricing"
+                                    className="inline-flex items-center gap-3 text-rose-800 hover:text-rose-900 font-medium transition-colors hover:translate-x-1 transform duration-200"
+                                >
+                                    <DollarSign className="w-5 h-5 shrink-0 text-rose-900" />
+                                    Pricing
+                                </Link>
+                            </li> */}
+                            {!loading && !user ? (
+                                <li>
+                                    <Link
+                                        to="/auth"
+                                        className="inline-flex items-center gap-3 text-rose-800 hover:text-rose-900 font-medium transition-colors hover:translate-x-1 transform duration-200"
+                                    >
+                                        <LogIn className="w-5 h-5 shrink-0 text-rose-900" />
+                                        Sign in
+                                    </Link>
+                                </li>
+                            ) : !loading && user ? (
+                                <li>
+                                    <Link
+                                        to="/profile"
+                                        className="inline-flex items-center gap-3 text-rose-800 hover:text-rose-900 font-medium transition-colors hover:translate-x-1 transform duration-200"
+                                    >
+                                        <User className="w-5 h-5 shrink-0 text-rose-900" />
+                                        Profile
+                                    </Link>
+                                </li>
+                            ) : null}
+                        </ul>
                     </div>
 
                     {/* Support Section */}
-                    <div>
-                        <h3 className="text-xl font-semibold mb-6 text-rose-800">Support</h3>
+                    <div className="text-center md:text-left">
+                        <h3 className="text-xl font-semibold mb-6 text-rose-800 italic">Support</h3>
                         <div className="space-y-4">
-                            <div className="flex items-start gap-3">
-                                <Mail className="w-5 h-5 shrink-0 mt-1 text-rose-900" />
-                                <div className="flex flex-col gap-1">
-                                    <p className="text-sm text-rose-700 font-medium inline-flex">Email:</p>
+                            <div className="flex items-center gap-3 justify-center md:justify-start">
+                                <Mail className="w-5 h-5 shrink-0 text-rose-900" />
+                                <div>
+                                    <p className="text-sm text-rose-700 font-medium">Email:</p>
                                     <a
                                         href="mailto:solodabu@gmail.com"
-                                        className="text-rose-800 hover:text-rose-900 font-medium transition-colors break-all underline"
+                                        className="text-rose-800 hover:text-rose-900 font-medium transition-colors underline"
                                     >
-                                        solodabu@gmail.com
+                                        pasionharold01@gmail.com
                                     </a>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-3">
-                                <Clock className="w-5 h-5 shrink-0 mt-1 text-rose-900" />
-                                <div className="flex flex-col gap-1">
-                                    <p className="text-sm text-rose-700 font-medium inline-flex">Response time:</p>
-                                    <p className="text-rose-800 hover:text-rose-900 font-medium inline-flex">12-24 hours</p>
+                            <div className="flex items-center gap-3 justify-center md:justify-start">
+                                <Clock className="w-5 h-5 shrink-0 text-rose-900" />
+                                <div>
+                                    <p className="text-sm text-rose-700 font-medium">Response time:</p>
+                                    <p className="text-rose-800 font-medium">12-24 hours</p>
                                 </div>
                             </div>
                         </div>

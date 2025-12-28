@@ -89,6 +89,7 @@ export class TailoringService {
 
     // 1. Add relevant missing skills that could be acquired
     const skillsToAdd = skillAnalysis.missing.filter(skill => {
+      if (!skill) return false;
       // Only add skills that seem like they could be transferable
       const transferableKeywords = ['communication', 'leadership', 'team', 'analysis', 'problem-solving', 'management'];
       return transferableKeywords.some(kw => skill.toLowerCase().includes(kw)) ||
@@ -144,20 +145,22 @@ export class TailoringService {
       }
 
       // Enhance existing summary with job keywords
-      const jobKeywords = jobDescription.keywords.slice(0, 3);
+      const jobKeywords = (jobDescription.keywords || []).slice(0, 3);
       let enhanced = currentSummary;
 
       // Try to incorporate job title if not present
-      if (!enhanced.toLowerCase().includes(jobDescription.title.toLowerCase())) {
+      const jobTitle = jobDescription.title || '';
+      if (jobTitle && !enhanced.toLowerCase().includes(jobTitle.toLowerCase())) {
+        const titleFirstWord = jobTitle.split(' ')[0] || jobTitle;
         enhanced = enhanced.replace(
           /professional|specialist|expert/i,
-          `${jobDescription.title.split(' ')[0]} professional`
+          `${titleFirstWord} professional`
         );
       }
 
       // Add relevant keywords if not present
       const missingKeywords = jobKeywords.filter(
-        kw => !enhanced.toLowerCase().includes(kw.toLowerCase())
+        kw => kw && !enhanced.toLowerCase().includes(kw.toLowerCase())
       );
 
       if (missingKeywords.length > 0 && enhanced.length < 500) {
@@ -184,15 +187,20 @@ export class TailoringService {
     ];
 
     const jobKeywords = new Set(
-      jobDescription.keywords.map(k => k.toLowerCase())
+      (jobDescription.keywords || []).map(k => k?.toLowerCase() || '')
     );
 
     return experience.map((exp, index) => {
       let modified = false;
-      let description = exp.description;
+      let description = exp.description || '';
+
+      // Skip if no description
+      if (!description || description.trim().length === 0) {
+        return { ...exp, isModified: false };
+      }
 
       // Enhance description with action verbs if it doesn't start with one
-      const firstWord = description.split(' ')[0]?.toLowerCase();
+      const firstWord = description.split(' ')[0]?.toLowerCase() || '';
       const hasActionVerb = actionVerbs.some(v => v.toLowerCase() === firstWord);
 
       if (!hasActionVerb && description.length > 0) {

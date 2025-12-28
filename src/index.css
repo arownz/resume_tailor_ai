@@ -141,6 +141,17 @@ h6 {
     outline: 3px solid rgba(248, 106, 104, 0.5);
     outline-offset: 2px;
   }
+
+/* Prevent textarea from being resized horizontally (only vertical allowed) */
+textarea.input-field {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Or use resize: none to completely disable resizing */
+textarea.input-field.no-resize {
+  resize: none;
+}
   
   /* Link focus states */
   a:focus-visible {

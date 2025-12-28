@@ -17,25 +17,27 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen flex flex-col bg-linear-to-br from-rose-50 via-pink-50 to-rose-100">
+        <div className="min-h-screen flex flex-col bg-gradient-to-br from-rose-50 via-pink-50 to-rose-100">
           <Navigation />
           <main className="flex-1 w-full">
-            <Suspense fallback={
-              <div className="flex items-center justify-center min-h-screen">
-                <div className="text-center">
-                  <Loader2 className="w-16 h-16 text-primary-600 animate-spin mx-auto mb-4" />
-                  <p className="text-gray-700 text-xl font-medium">Loading...</p>
+            <div className="max-w-7xl mx-auto px-8 py-8">
+              <Suspense fallback={
+                <div className="flex items-center justify-center min-h-[60vh]">
+                  <div className="text-center">
+                    <Loader2 className="w-16 h-16 text-primary-600 animate-spin mx-auto mb-4" />
+                    <p className="text-gray-700 text-xl font-medium">Loading...</p>
+                  </div>
                 </div>
-              </div>
-            }>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/auth" element={<AuthPage />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/pricing" element={<PricingPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-              </Routes>
-            </Suspense>
+              }>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/auth" element={<AuthPage />} />
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/pricing" element={<PricingPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                </Routes>
+              </Suspense>
+            </div>
           </main>
           <Footer />
           <MusicPlayer />

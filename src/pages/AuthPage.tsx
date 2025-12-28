@@ -19,19 +19,19 @@ export const AuthPage: React.FC = () => {
                         </div>
 
                         <div className="space-y-4">
-                            <div className="flex items-start gap-4 p-4 bg-white/60 backdrop-blur-sm rounded-xl border-2 border-primary-100">
+                            <div className="flex items-start gap-4 p-4 bg-white/60 backdrop-blur-sm rounded-xl border-2 border-gray-500">
                                 <div>
                                     <h3 className="font-bold text-lg text-gray-900">Smart Matching</h3>
-                                    <p className="text-gray-600">Match your resume to job description instantly</p>
+                                    <p className="text-gray-500">Match your resume to job description instantly</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-4 p-4 bg-white/60 backdrop-blur-sm rounded-xl border-2 border-primary-100">
+                            <div className="flex items-start gap-4 p-4 bg-white/60 backdrop-blur-sm rounded-xl border-2 border-gray-500">
                                 <div>
                                     <h3 className="font-bold text-lg text-gray-900">Detailed Analytics</h3>
                                     <p className="text-gray-600">Get actionable insights to improve your application</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-4 p-4 bg-white/60 backdrop-blur-sm rounded-xl border-2 border-primary-100">
+                            <div className="flex items-start gap-4 p-4 bg-white/60 backdrop-blur-sm rounded-xl border-2 border-gray-500">
                                 <div>
                                     <h3 className="font-bold text-lg text-gray-900">Lightning Fast</h3>
                                     <p className="text-gray-600">Analyze your resume in seconds, not hours</p>

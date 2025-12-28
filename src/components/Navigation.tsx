@@ -15,8 +15,8 @@ export const Navigation: React.FC = () => {
 
     return (
         <nav className="bg-rose-100 shadow-md sticky top-0 z-50 border-b-2 border-rose-300 w-full">
-            <div className="w-full max-w-none px-6">
-                <div className="flex items-center justify-between h-20 w-full">
+            <div className="max-w-7xl mx-auto px-8">
+                <div className="flex items-center justify-between h-20">
                     {/* Logo */}
                     <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                         <img
@@ -45,13 +45,13 @@ export const Navigation: React.FC = () => {
                             <Home className="w-5 h-5" />
                             Home
                         </Link>
-                        <Link
+                        {/* <Link
                             to="/pricing"
                             className="flex items-center gap-2 text-rose-700 hover:text-rose-900 transition-colors font-medium"
                         >
                             <DollarSign className="w-5 h-5" />
                             Pricing
-                        </Link>
+                        </Link> */}
 
                         {!loading && !user && (
                             <Link

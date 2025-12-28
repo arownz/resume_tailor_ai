@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import type { Resume, TailoredResume, ExperienceEntry, EducationEntry } from '../types/models';
+import { THEME_COLORS, type ThemeColor } from '../services/pdf.service';
 import { 
     User, 
     Mail, 
@@ -16,7 +17,8 @@ import {
     Plus,
     Trash2,
     Sparkles,
-    RotateCcw
+    RotateCcw,
+    Palette
 } from 'lucide-react';
 
 interface ResumeEditorProps {
@@ -25,6 +27,8 @@ interface ResumeEditorProps {
     onChange: (updatedResume: Resume) => void;
     onRevert?: () => void;
     isModified?: boolean;
+    themeColor?: ThemeColor;
+    onThemeChange?: (theme: ThemeColor) => void;
 }
 
 // Editable text field component
@@ -49,6 +53,18 @@ const EditableField: React.FC<{
         setIsEditing(false);
     };
 
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !multiline) {
+            e.preventDefault();
+            handleSave();
+        } else if (e.key === 'Enter' && multiline && (e.ctrlKey || e.metaKey)) {
+            e.preventDefault();
+            handleSave();
+        } else if (e.key === 'Escape') {
+            handleCancel();
+        }
+    };
+
     if (isEditing) {
         return (
             <div className="flex items-start gap-2">
@@ -56,23 +72,27 @@ const EditableField: React.FC<{
                     <textarea
                         value={editValue}
                         onChange={(e) => setEditValue(e.target.value)}
+                        onKeyDown={handleKeyDown}
                         className="flex-1 p-2 border border-rose-300 rounded-lg resize-none focus:ring-2 focus:ring-rose-400 focus:border-transparent"
                         rows={3}
                         autoFocus
+                        placeholder="Press Ctrl+Enter to save"
                     />
                 ) : (
                     <input
                         type="text"
                         value={editValue}
                         onChange={(e) => setEditValue(e.target.value)}
+                        onKeyDown={handleKeyDown}
                         className="flex-1 p-2 border border-rose-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:border-transparent"
                         autoFocus
+                        placeholder="Press Enter to save"
                     />
                 )}
-                <button onClick={handleSave} className="p-2 text-green-600 hover:bg-green-50 rounded-lg">
+                <button onClick={handleSave} className="p-2 text-green-600 hover:bg-green-50 rounded-lg" title="Save (Enter)">
                     <Check className="w-4 h-4" />
                 </button>
-                <button onClick={handleCancel} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+                <button onClick={handleCancel} className="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="Cancel (Esc)">
                     <X className="w-4 h-4" />
                 </button>
             </div>
@@ -236,9 +256,14 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
     tailoredResume,
     onChange,
     onRevert,
-    isModified = false
+    isModified = false,
+    themeColor,
+    onThemeChange
 }) => {
     const [activeSection, setActiveSection] = useState<string>('all');
+    const [showColorPicker, setShowColorPicker] = useState(false);
+
+    const currentTheme = themeColor || THEME_COLORS[0];
 
     const updateResume = useCallback((updates: Partial<Resume>) => {
         onChange({ ...resume, ...updates });
@@ -274,29 +299,87 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({
 
     const modifications = tailoredResume?.modifications;
 
+    // Get header style based on theme
+    const getHeaderStyle = () => {
+        if (currentTheme.name === 'None') {
+            return { backgroundColor: '#f9fafb', color: '#111827' };
+        }
+        return {
+            backgroundColor: `rgb(${currentTheme.primary[0]}, ${currentTheme.primary[1]}, ${currentTheme.primary[2]})`,
+            color: `rgb(${currentTheme.text[0]}, ${currentTheme.text[1]}, ${currentTheme.text[2]})`
+        };
+    };
+
     return (
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             {/* Editor Header */}
-            <div className="bg-linear-to-r from-rose-500 to-rose-600 text-white p-4">
+            <div className="p-4" style={getHeaderStyle()}>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <Edit3 className="w-6 h-6" />
                         <div>
                             <h2 className="text-xl font-bold">Resume Editor</h2>
-                            <p className="text-rose-100 text-sm">
+                            <p className="text-sm opacity-80">
                                 {isModified ? 'AI-tailored • Click any field to edit' : 'Click any field to edit'}
                             </p>
                         </div>
                     </div>
-                    {onRevert && isModified && (
-                        <button
-                            onClick={onRevert}
-                            className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-                        >
-                            <RotateCcw className="w-4 h-4" />
-                            Revert Changes
-                        </button>
-                    )}
+                    <div className="flex items-center gap-2">
+                        {/* Theme Color Picker */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowColorPicker(!showColorPicker)}
+                                className="flex items-center gap-2 px-3 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                                title="Change theme color"
+                            >
+                                <Palette className="w-4 h-4" />
+                                <span className="text-sm hidden sm:inline">Theme</span>
+                            </button>
+                            {showColorPicker && (
+                                <div className="absolute right-0 top-full mt-2 p-3 bg-white rounded-lg shadow-xl border border-gray-200 z-50 min-w-[200px]">
+                                    <p className="text-xs text-gray-500 mb-2 font-medium">Select Theme Color</p>
+                                    <div className="grid grid-cols-4 gap-2">
+                                        {THEME_COLORS.map((color) => (
+                                            <button
+                                                key={color.name}
+                                                onClick={() => {
+                                                    onThemeChange?.(color);
+                                                    setShowColorPicker(false);
+                                                }}
+                                                className={`w-10 h-10 rounded-lg border-2 transition-all hover:scale-110 ${
+                                                    currentTheme.name === color.name 
+                                                        ? 'border-gray-800 ring-2 ring-offset-1 ring-gray-400' 
+                                                        : 'border-gray-200'
+                                                }`}
+                                                style={{
+                                                    backgroundColor: color.name === 'None' 
+                                                        ? '#f9fafb' 
+                                                        : `rgb(${color.primary[0]}, ${color.primary[1]}, ${color.primary[2]})`
+                                                }}
+                                                title={color.name}
+                                            >
+                                                {color.name === 'None' && (
+                                                    <span className="text-xs text-gray-400">∅</span>
+                                                )}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <p className="text-xs text-gray-400 mt-2">
+                                        {currentTheme.name} theme selected
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                        {onRevert && isModified && (
+                            <button
+                                onClick={onRevert}
+                                className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                            >
+                                <RotateCcw className="w-4 h-4" />
+                                Revert Changes
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
 

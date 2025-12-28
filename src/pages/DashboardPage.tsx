@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FileUpload } from '../components/FileUpload';
 import { JobDescriptionForm } from '../components/JobDescriptionForm';
 import { AnalysisResults } from '../components/AnalysisResults';
@@ -6,13 +7,17 @@ import { ScoreCard } from '../components/ScoreCard';
 import { ResumeEditor } from '../components/ResumeEditor';
 import { ResumeParser } from '../utils/resumeParser';
 import { TailoringService } from '../services/tailoring.service';
-import { PDFService } from '../services/pdf.service';
+import { PDFService, THEME_COLORS, type ThemeColor } from '../services/pdf.service';
+import { useAuth } from '../contexts/AuthContext';
 import type { Resume, JobDescription, TailoredOutput } from '../types/models';
-import { Loader2, AlertCircle, Download, FileText, Edit3, Sparkles } from 'lucide-react';
+import { Loader2, AlertCircle, Download, FileText, Edit3, Sparkles, Lock } from 'lucide-react';
 
 type ViewMode = 'analysis' | 'editor' | 'preview';
 
 export const DashboardPage: React.FC = () => {
+    const navigate = useNavigate();
+    const { user, canAnalyze, guestUsageCount, guestUsageLimit, incrementGuestUsage } = useAuth();
+    
     const [resume, setResume] = useState<Resume | null>(null);
     const [originalResume, setOriginalResume] = useState<Resume | null>(null);
     const [resumeFile, setResumeFile] = useState<File | null>(null);
@@ -22,6 +27,7 @@ export const DashboardPage: React.FC = () => {
     const [jobDescription, setJobDescription] = useState<JobDescription | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<ViewMode>('analysis');
+    const [themeColor, setThemeColor] = useState<ThemeColor>(THEME_COLORS[0]);
 
     // use a process id to ignore results from stale/aborted operations
     const processIdRef = useRef(0);
@@ -88,6 +94,12 @@ export const DashboardPage: React.FC = () => {
             return;
         }
 
+        // Check guest usage limit
+        if (!canAnalyze) {
+            setError(`You've reached the free limit of ${guestUsageLimit} analyses. Please sign in for unlimited access.`);
+            return;
+        }
+
         setIsProcessing(true);
         setError(null);
 
@@ -97,6 +109,9 @@ export const DashboardPage: React.FC = () => {
             setAnalysisResults(results);
             setJobDescription(jobDesc);
 
+            // Increment guest usage after successful analysis
+            incrementGuestUsage();
+
             // Update resume with tailored version if available
             if (results.tailoredResume) {
                 setResume(results.tailoredResume);
@@ -105,7 +120,8 @@ export const DashboardPage: React.FC = () => {
             // Generate modified resume PDF
             const pdfBlob = await PDFService.generateModifiedResume(
                 results.tailoredResume || resume, 
-                results
+                results,
+                themeColor
             );
             setModifiedResumePdf(pdfBlob);
 
@@ -143,6 +159,43 @@ export const DashboardPage: React.FC = () => {
                         <div>
                             <h3 className="font-semibold text-red-900">Error</h3>
                             <p className="text-red-700">{error}</p>
+                            {!canAnalyze && !user && (
+                                <button
+                                    onClick={() => navigate('/auth')}
+                                    className="mt-2 btn-primary text-sm"
+                                >
+                                    Sign In Now
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Guest Usage Banner */}
+                {!user && (
+                    <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
+                        <Lock className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                                <h3 className="font-semibold text-amber-900">Guest Mode</h3>
+                                <span className="text-sm font-medium text-amber-700">
+                                    {guestUsageCount} / {guestUsageLimit} free analyses used
+                                </span>
+                            </div>
+                            <p className="text-amber-700 text-sm mt-1">
+                                {canAnalyze 
+                                    ? `You have ${guestUsageLimit - guestUsageCount} free ${guestUsageLimit - guestUsageCount === 1 ? 'analysis' : 'analyses'} remaining. Sign in for unlimited access.`
+                                    : 'You\'ve used all free analyses. Sign in to continue using Resume Tailor AI.'
+                                }
+                            </p>
+                            {!canAnalyze && (
+                                <button
+                                    onClick={() => navigate('/auth')}
+                                    className="mt-2 btn-primary text-sm"
+                                >
+                                    Sign In for Unlimited Access
+                                </button>
+                            )}
                         </div>
                     </div>
                 )}
@@ -258,7 +311,7 @@ export const DashboardPage: React.FC = () => {
                                 onChange={(updatedResume) => {
                                     setResume(updatedResume);
                                     // Regenerate PDF when resume is edited
-                                    PDFService.generateModifiedResume(updatedResume, analysisResults)
+                                    PDFService.generateModifiedResume(updatedResume, analysisResults, themeColor)
                                         .then(setModifiedResumePdf)
                                         .catch(console.error);
                                 }}
@@ -268,6 +321,16 @@ export const DashboardPage: React.FC = () => {
                                     }
                                 }}
                                 isModified={!!analysisResults.tailoredResume}
+                                themeColor={themeColor}
+                                onThemeChange={(newTheme) => {
+                                    setThemeColor(newTheme);
+                                    // Regenerate PDF with new theme
+                                    if (resume && analysisResults) {
+                                        PDFService.generateModifiedResume(resume, analysisResults, newTheme)
+                                            .then(setModifiedResumePdf)
+                                            .catch(console.error);
+                                    }
+                                }}
                             />
                         )}
 

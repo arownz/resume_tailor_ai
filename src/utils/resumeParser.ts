@@ -88,8 +88,10 @@ export class ResumeParser {
     
     const lines = text.split("\n").filter((line) => line.trim());
     
-    // Check if this is a narrative-style "Name: ..." format
-    const isNarrativeFormat = text.startsWith("Name:") || /^Name:\s*/.test(text);
+    // Check if this is a narrative-style "Name: ..." format (paragraph description)
+    // Must start with "Name:" and have paragraph-like content (not section headers)
+    const isNarrativeFormat = text.startsWith("Name:") && 
+      !text.match(/^(EDUCATION|EXPERIENCE|SKILLS|SUMMARY|OBJECTIVE)[:\n]/im);
     
     if (isNarrativeFormat) {
       console.log('[ResumeParser] Detected narrative format');
@@ -257,12 +259,30 @@ export class ResumeParser {
           .filter((cert) => cert.length > 0 && cert.length < 100)
       : [];
 
+    // Limit summary to reasonable length (max 500 chars, 2-3 sentences)
+    let finalSummary = summarySection?.trim();
+    if (finalSummary && finalSummary.length > 500) {
+      // Try to cut at sentence boundary
+      const sentences = finalSummary.match(/[^.!?]+[.!?]+/g) || [];
+      finalSummary = '';
+      for (const sentence of sentences) {
+        if ((finalSummary + sentence).length <= 500) {
+          finalSummary += sentence;
+        } else {
+          break;
+        }
+      }
+      if (!finalSummary && summarySection) {
+        finalSummary = summarySection.substring(0, 500) + '...';
+      }
+    }
+
     const result = {
       name,
       contact,
       email,
       phone,
-      summary: summarySection?.trim(),
+      summary: finalSummary,
       education,
       experience,
       skills,
@@ -506,7 +526,7 @@ export class ResumeParser {
           title: title || company || 'Position',
           company: title ? (company || undefined) : undefined,
           duration: duration || undefined,
-          description: description || undefined,
+          description: description || '',
           bullets: bullets.length > 0 ? bullets : undefined,
           isModified: false
         });
@@ -584,11 +604,12 @@ export class ResumeParser {
       if (keywordIndex !== -1) {
         // Get text after the keyword until double newline or next section
         const afterKeyword = normalizedText.substring(keywordIndex + header.length);
-        const endMatch = afterKeyword.match(/\n\s*\n\s*[A-Z][A-Z\s]+[:.]/);
-        const endIndex = endMatch ? endMatch.index : Math.min(afterKeyword.length, 2000);
+        const endMatch = afterKeyword.match(/\n\s*\n\s*[A-Z][A-Z\s]+[:.]/)
+          || afterKeyword.match(/\n\s*\n/);
+        const endIndex = endMatch ? endMatch.index : Math.min(afterKeyword.length, 500);
         const content = afterKeyword.substring(0, endIndex).replace(/^[:\s]+/, '').trim();
         
-        if (content.length > 10) {
+        if (content.length > 10 && content.length < 1500) {
           return content;
         }
       }

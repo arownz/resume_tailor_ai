@@ -74,7 +74,7 @@ export const AuthForm: React.FC = () => {
     };
 
     return (
-        <div className="w-full max-w-md mx-auto p-8 bg-white rounded-2xl shadow-2xl border-2 border-primary-100">
+        <div className="w-full max-w-md mx-auto p-8 bg-white rounded-2xl shadow-2xl border-2 border-gray-500">
             <div className="text-center mb-8">
                 <h2 className="text-4xl font-bold text-gray-900 mb-3">Welcome</h2>
                 <p className="text-gray-600 text-lg">Sign in to tailor your resume with AI magic</p>
@@ -170,8 +170,7 @@ export const AuthForm: React.FC = () => {
 
             <div className="mt-8 pt-6 border-t-2 border-gray-100 text-center">
                 <p className="text-base text-gray-600 flex items-center justify-center gap-2">
-                    <Lock className="w-5 h-5 text-primary-600" />
-                    Your data is encrypted and secure
+                    Your data is encrypted and secure in supabase
                 </p>
             </div>
         </div>

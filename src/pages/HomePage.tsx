@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { DollarSign, FileText, Sparkles, TrendingUp } from 'lucide-react';
+import { FileText, Sparkles, TrendingUp } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
     return (
@@ -29,13 +29,13 @@ export const HomePage: React.FC = () => {
                             <Sparkles className="w-4 h-4" />
                             Tailor Your Resume
                         </Link>
-                        <Link
+                        {/* <Link
                             to="/pricing"
                             className="btn-secondary btn-lg inline-flex items-center gap-2 shadow-lg hover:shadow-2xl"
                         >
                             <DollarSign className="w-5 h-5" />
                             View Pricing
-                        </Link>
+                        </Link> */}
                     </div>
                 </div>
 
@@ -103,7 +103,7 @@ export const HomePage: React.FC = () => {
                     </h2>
                     <p className="text-xl text-gray-700 mb-12 max-w-2xl mx-auto leading-relaxed">
                         <br />
-                        <span className="font-semibold text-rose-600">Join thousands of job seekers who improved their resumes with AI.</span>
+                        <span className="font-semibold text-rose-600">Tailor and improved your resume with AI.</span>
                     </p>
                     <Link
                         to="/dashboard"
